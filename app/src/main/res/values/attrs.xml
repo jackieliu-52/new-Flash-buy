@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="TintableImageView">
+    <attr name="tint" format="reference|color"/>
+  </declare-styleable>
+
+  <declare-styleable name="SmoothCheckBox">
+    <attr name="duration" format="integer"/>  <!-- 动画持续时间 -->
+    <attr name="stroke_width" format="dimension"/>
+    <attr name="color_tick" format="color"/>  <!-- 对勾颜色 -->
+    <attr name="color_checked" format="color"/> <!-- 选中时填充颜色-->
+    <attr name="color_unchecked" format="color"/>
+    <attr name="color_unchecked_stroke" format="color"/>
+  </declare-styleable>
+</resources>
