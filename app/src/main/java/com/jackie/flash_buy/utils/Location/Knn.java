@@ -1,4 +1,4 @@
-package com.jackie.flash_buy.utils.Location;
+package com.jackie.flash_buy.utils.location;
 
 /**
  * knn算法

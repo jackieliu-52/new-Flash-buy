@@ -9,9 +9,13 @@ android {
         minSdkVersion 19
         targetSdkVersion 24
         versionCode 1
-        versionName "1.0"
+        versionName "2.0"
     }
     buildTypes {
+        //设置包名为 <app appliationId>.debug，以便能够在同一个设备上安装 debug 和 release 版的 apk
+        debug {
+            applicationIdSuffix ".debug"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -21,10 +25,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    //本地文件
-    compile files('libs/gson-2.7.jar')
-    compile files('libs/zxing.jar')
-    compile files('libs/commons-math3-3.6.1.jar')
+
 
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.2.0'
@@ -36,5 +37,15 @@ dependencies {
     compile 'com.facebook.fresco:fresco:0.12.0'
     //可以扩展的recyclerView
     compile 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
+    //检测内存泄露
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    //listView
+    compile 'se.emilsjolander:stickylistheaders:2.7.0'
+    //使用图标库
+    compile "com.mikepenz:iconics-core:2.8.1@aar"
+    compile 'com.mikepenz:fontawesome-typeface:4.4.0.1@aar'
+
 
 }

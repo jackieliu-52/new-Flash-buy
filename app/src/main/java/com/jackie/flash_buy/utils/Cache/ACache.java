@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jackie.flash_buy.utils.Cache;
+package com.jackie.flash_buy.utils.cache;
 
 import android.content.Context;
 import android.graphics.Bitmap;

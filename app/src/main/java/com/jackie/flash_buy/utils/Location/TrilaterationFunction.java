@@ -1,4 +1,4 @@
-package com.jackie.flash_buy.utils.Location;
+package com.jackie.flash_buy.utils.location;
 
 import org.apache.commons.math3.fitting.leastsquares.MultivariateJacobianFunction;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
