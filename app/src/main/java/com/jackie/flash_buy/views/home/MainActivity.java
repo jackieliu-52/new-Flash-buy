@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.jackie.flash_buy.BaseActivity;
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.presenters.home.PlanPresenter;
 import com.jackie.flash_buy.ui.NoScrollViewPager;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -30,6 +31,8 @@ public class MainActivity extends BaseActivity {
     private TabLayout.Tab order;
     private TabLayout.Tab my;
 
+    private PlanFragment mPlanFragment;
+    private PlanPresenter mPlanPresenter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,7 +143,9 @@ public class MainActivity extends BaseActivity {
             public BaseFragment getItem(int position) {
                 switch (position){
                     case 0:
-                        return new PlanFragment();
+                        mPlanFragment = PlanFragment.GetInstance();
+                        mPlanPresenter = PlanPresenter.GetInstance(mPlanFragment);
+                        return  mPlanFragment;
                     case 1:
                         return new PlanFragment();
                     case 2:

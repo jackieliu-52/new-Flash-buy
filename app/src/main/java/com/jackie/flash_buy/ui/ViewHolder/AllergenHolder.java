@@ -1,4 +1,4 @@
-package com.jackie.flash_buy.ui.ViewHolder;
+package com.jackie.flash_buy.ui.viewHolder;
 
 import android.view.View;
 import android.widget.ImageView;

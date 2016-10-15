@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
+        android:layout_width="100dp"
+        android:id="@+id/rvType"
+        android:layout_height="match_parent">
+    </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
+
+
+    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+        android:layout_width="match_parent"
+        android:background="#fff"
+        android:id="@+id/lvItems"
+        android:layout_height="match_parent">
+    </se.emilsjolander.stickylistheaders.StickyListHeadersListView>
 
 </LinearLayout>
