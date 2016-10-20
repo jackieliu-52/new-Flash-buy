@@ -23,6 +23,9 @@ public class CommonRecyclerViewHolder extends RecyclerView.ViewHolder {
         mContent = itemView;
     }
 
+    public View getContent() {
+        return mContent;
+    }
 
     public static CommonRecyclerViewHolder get(Context context, ViewGroup parent, int layoutId) {
         View itemView = LayoutInflater.from(context).inflate(layoutId, parent, false);

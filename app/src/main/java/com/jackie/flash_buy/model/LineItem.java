@@ -19,6 +19,20 @@ public class LineItem implements Parcelable {
     public LineItem() {
     }
 
+    public LineItem(Item item) {
+        isBulk = false;
+        this.id = 233;
+        number = 0;
+        goods_ID = item.getIid();
+        this.item = item;
+    }
+    public LineItem(Item item,int id) {
+        isBulk = false;
+        this.id = id;
+        number = 0;
+        goods_ID = item.getIid();
+        this.item = item;
+    }
     public LineItem(BulkItem item) {
         isBulk = true;
         number = 1;
@@ -81,6 +95,9 @@ public class LineItem implements Parcelable {
         this.number = num;
     }
 
+    public void addNum() {this.number++;}
+
+    public void minusNum() {this.number--;}
     /**
      * 这不是普通的get方法
      * @return

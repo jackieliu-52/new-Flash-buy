@@ -10,7 +10,7 @@
 
     <!-- 灰色 -->
     <color name="bg_Gray_light">#EEEEEE</color>
-    <color name="bg_Gray">#DDDDDD</color>
+    <color name="bg_Gray">#f7f7f7</color>
     <color name="grey_light">#DDDDDD</color>
     <color name="grey">#777777</color>
 
@@ -49,4 +49,8 @@
     <color name="orange_6">#FF9800</color>
     <color name="orange_7">#FB8C00</color>
     <color name="orange_8">#F57C00</color>
+
+    <!-- select和没select-->
+    <color name="icon_selected">#FF9800</color>
+    <color name="icon_not_selected">#8c8c8c</color>
 </resources>

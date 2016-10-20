@@ -8,7 +8,7 @@ import android.os.Parcelable;
  */
 public class Item implements Parcelable {
     private String name;
-    private String Pid;  //小类ID
+    private String Pid;  //小类ID,作为标志
     private String Iid;  //商品ID
     private String image;  //图片路径
     private String company = "无"; //公司
@@ -21,8 +21,11 @@ public class Item implements Parcelable {
     private boolean isStar;  //是否被收藏，True表示被收藏了
     private String source; //来源，中国还是外国?
     private String category = "未知"; //种类
-    private int storage = 0;  //存储量
+    private int storage = 0;  //存储量,暂时作为小类的ID使用
 
+    public int getStorage() {
+        return storage;
+    }
 
     public String getCategory() {
         return category;

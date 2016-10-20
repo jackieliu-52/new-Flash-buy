@@ -61,12 +61,12 @@ public class SplashActivity extends BaseActivity {
             }
         });
 
-        int resId = Util.stringToId(mContext,"spalash_pic");
-        Uri uri = new Uri.Builder()
-                .scheme(UriUtil.LOCAL_RESOURCE_SCHEME) // "res"
-                .path(String.valueOf(resId))
-                .build();
-        dvSpalash.setImageURI(uri);
+//        int resId = Util.stringToId(mContext,"spalash_pic");
+//        Uri uri = new Uri.Builder()
+//                .scheme(UriUtil.LOCAL_RESOURCE_SCHEME) // "res"
+//                .path(String.valueOf(resId))
+//                .build();
+        dvSpalash.setImageURI("http://od4my62zm.bkt.clouddn.com/spalash_pic.jpg");
         tvAuthor.setText("jack");
         //启动动画
         dvSpalash.startAnimation(animation);

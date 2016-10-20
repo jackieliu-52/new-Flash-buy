@@ -16,10 +16,13 @@ public abstract class CommonRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
     private List<T> mData; // 数据
     private int mItemLayoutID; // item的布局文件
 
+    public String selected; //被选中的
+
     public CommonRecyclerAdapter(Context context, int itemLayoutID, List<T> data) {
         mContext = context;
         mData = data;
         mItemLayoutID = itemLayoutID;
+        selected = "init";
     }
 
     public List<T> getData() {

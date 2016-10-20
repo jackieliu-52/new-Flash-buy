@@ -5,8 +5,9 @@
               android:layout_height="match_parent">
 
     <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:id="@+id/rvType"
+        android:fastScrollEnabled="false"
         android:layout_height="match_parent">
     </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
 
@@ -15,6 +16,7 @@
         android:layout_width="match_parent"
         android:background="#fff"
         android:id="@+id/lvItems"
+        android:fastScrollEnabled="false"
         android:layout_height="match_parent">
     </se.emilsjolander.stickylistheaders.StickyListHeadersListView>
 

@@ -46,6 +46,7 @@ dependencies {
     //使用图标库
     compile "com.mikepenz:iconics-core:2.8.1@aar"
     compile 'com.mikepenz:fontawesome-typeface:4.4.0.1@aar'
-
+    //tablayout
+    compile 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
 
 }
