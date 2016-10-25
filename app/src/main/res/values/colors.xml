@@ -53,4 +53,6 @@
     <!-- select和没select-->
     <color name="icon_selected">#FF9800</color>
     <color name="icon_not_selected">#8c8c8c</color>
+
+    <color name="scan_bg">#7f000000</color>
 </resources>

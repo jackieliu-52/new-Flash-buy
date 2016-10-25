@@ -13,13 +13,13 @@ import android.widget.ImageView;
  * 作者：王敏 on 2015/8/21 17:31
  * 类说明：画出扫描框的四个脚的脚边框，也可以直接用一张图片代替
  */
-public class ScanView extends ImageView {
+public class ScanImageView extends ImageView {
     private Context context;
-    public ScanView(Context context, AttributeSet attrs) {
+    public ScanImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
     }
-    public ScanView(Context context) {
+    public ScanImageView(Context context) {
         super(context);
         this.context = context;
     }

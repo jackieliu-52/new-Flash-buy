@@ -1,9 +1,12 @@
 package com.jackie.flash_buy.views.home;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,6 +27,8 @@ import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerAdapter;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerViewHolder;
 import com.jackie.flash_buy.ui.commonRecyclerView.DividerDecoration;
 import com.jackie.flash_buy.ui.commonRecyclerView.RecyclerItemClickListener;
+import com.jackie.flash_buy.utils.Constant;
+import com.jackie.flash_buy.views.scan.ScanActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +51,10 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
 
     private StickyListHeadersListView lvItems;
     private GoodsAdapter mGoodsAdapter;  //商品的adapter
+
+    //fab
+    private FloatingActionButton mFloatingActionButton;
+    private boolean visible;//是否可见
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,10 +89,39 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser){
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            //相当于Fragment的onResume
+            Log.i(TAG,"可见");
+            visible= true;
+            if(mFloatingActionButton != null)
+                mFloatingActionButton.setVisibility(View.VISIBLE);
+        } else {
+            //相当于Fragment的onPause
+            Log.i(TAG,"不可见");
+            visible = false;
+            if(mFloatingActionButton != null)
+                mFloatingActionButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.plan_frag, container, false);
+        mFloatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.fab);
 
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                Intent intent =new Intent(mContext,ScanActivity.class);
+                intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
+                startActivity(intent);
+            }
+        });
 
         this.rvType = (CommonRecycleView) root.findViewById(R.id.rvType);
 
@@ -192,6 +230,8 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         mPresenter.remove(lineItem);
         commonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
     }
+
+
 
 
 }

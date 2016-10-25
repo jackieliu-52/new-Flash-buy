@@ -4,6 +4,7 @@ import com.jackie.flash_buy.contracts.home.PlanContract;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.TwoTuple;
+import com.jackie.flash_buy.views.home.MainActivity;
 import com.litesuits.android.log.Log;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class PlanPresenter implements PlanContract.Presenter {
 
     private List<TwoTuple<String, Integer>> mTypes;  //种类
     private List<LineItem> mLineItems;   //种类对应的商品
-    private List<LineItem> mPlanBuy;  //计划购买的商品，已选择的商品
+
 
     /**
      * 对外接口
@@ -38,7 +39,6 @@ public class PlanPresenter implements PlanContract.Presenter {
         mPlanView.setPresenter(this); //bind
         mTypes = new ArrayList<>();
         mLineItems = new ArrayList<>();
-        mPlanBuy = new ArrayList<>();
     }
 
     @Override
@@ -103,15 +103,15 @@ public class PlanPresenter implements PlanContract.Presenter {
     public void add(LineItem lineItem) {
         boolean exist = false;
         //先看看之前有没有加入
-        for (LineItem lineItem1 : mPlanBuy) {
-            if (lineItem1.getGoods_ID().equals(lineItem.getGoods_ID())) {
+        for (TwoTuple<Boolean,LineItem> lineItem1 : MainActivity.PlanBuy) {
+            if (lineItem1.second.getGoods_ID().equals(lineItem.getGoods_ID())) {
                 exist = true;
-                lineItem1.addNum(); //数量加一
+                lineItem1.second.addNum(); //数量加一
                 break;
             }
         }
         if (!exist) {
-            mPlanBuy.add(lineItem);
+            MainActivity.PlanBuy.add(new TwoTuple<Boolean,LineItem>(true,lineItem));
         }
         //不管之前怎么处理，add肯定需要将该大品类的数量加1，然后通知Adapter刷新UI
         addTypeNum(lineItem.getItem().getPid());
@@ -126,18 +126,18 @@ public class PlanPresenter implements PlanContract.Presenter {
                 return;
             }
         }
-        for (TwoTuple<String, Integer> item : mTypes) {
-
-        }
+//        for (TwoTuple<String, Integer> item : mTypes) {
+//
+//        }
         Log.e("PlanPresenter", "没有这个Type可以add");
     }
 
     @Override
     public void remove(LineItem lineItem) {
         //遍历删除
-        for (LineItem lineItem1 : mPlanBuy) {
-            if (lineItem1.getGoods_ID().equals(lineItem.getGoods_ID())) {
-                lineItem1.minusNum(); //数量减一
+        for (TwoTuple<Boolean,LineItem> lineItem1 : MainActivity.PlanBuy) {
+            if (lineItem1.second.getGoods_ID().equals(lineItem.getGoods_ID())) {
+                lineItem1.second.minusNum(); //数量减一
                 removeTypeNum(lineItem.getItem().getPid());
                 return;
             }

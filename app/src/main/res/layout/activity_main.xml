@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id = "@+id/clt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -10,7 +11,14 @@
 
 
 
-    <include layout="@layout/content_main"/>
+
+    <com.jackie.flash_buy.ui.NoScrollViewPager
+        android:paddingBottom="60dp"
+        android:background="#eeeeee"
+        android:id="@+id/vp_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 
 
@@ -33,13 +41,13 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="76dp"
         android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
-        android:src="@android:drawable/ic_dialog_email" />
+        android:src="@android:drawable/ic_menu_camera"
+        app:layout_behavior="com.jackie.flash_buy.ui.behavior.MyBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
