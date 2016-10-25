@@ -1,5 +1,6 @@
 package com.jackie.flash_buy.ui.behavior;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.os.Build;
 import android.support.design.widget.AppBarLayout;
@@ -10,86 +11,140 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 
 /**
  * 这个是和CoordinatorLayout有关的，可以定义控件的空间位置
  * 这里定义了一个FloatingButton和Toolbar在滚动时的行为
  */
-public class MyBehavior extends FloatingActionButton.Behavior {
+public class MyBehavior extends CoordinatorLayout.Behavior<View> {
 
     private static final Interpolator INTERPOLATOR = new FastOutSlowInInterpolator();
-    private boolean mIsAnimatingOut = false;
+
+    private int mDySinceDirectionChange;
+    private boolean mIsShowing;
+    private boolean mIsHiding;
 
     public MyBehavior(Context context, AttributeSet attrs) {
-        super();
+        super(context, attrs);
+//        Log.i("Behavior","init!");
     }
 
     @Override
-    public boolean onStartNestedScroll(final CoordinatorLayout coordinatorLayout, final FloatingActionButton child,
-                                       final View directTargetChild, final View target, final int nestedScrollAxes) {
-        // Ensure we react to vertical scrolling
-        return nestedScrollAxes == ViewCompat.SCROLL_AXIS_VERTICAL
-                || super.onStartNestedScroll(coordinatorLayout, child, directTargetChild, target, nestedScrollAxes);
+    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, View child, View directTargetChild, View target, int nestedScrollAxes) {
+//        Log.i("Behavior","start!");
+        return (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
-    public void onNestedScroll(final CoordinatorLayout coordinatorLayout, final FloatingActionButton child,
-                               final View target, final int dxConsumed, final int dyConsumed,
-                               final int dxUnconsumed, final int dyUnconsumed) {
-        super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-        if (dyConsumed > 0 && !this.mIsAnimatingOut && child.getVisibility() == View.VISIBLE) {
-            // User scrolled down and the FAB is currently visible -> hide the FAB
-            animateOut(child);
-        } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
-            // User scrolled up and the FAB is currently not visible -> show the FAB
-            animateIn(child);
+    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, View child, View target, int dx, int dy, int[] consumed) {
+//        Log.i("Behavior","dy:" + dy + " child.getHeight():" +  child.getHeight());
+
+        if (dy > 0 && mDySinceDirectionChange < 0
+                || dy < 0 && mDySinceDirectionChange > 0) {
+            // We detected a direction change- cancel existing animations and reset our cumulative delta Y
+            child.animate().cancel();
+            mDySinceDirectionChange = 0;
+        }
+
+        mDySinceDirectionChange += dy;
+
+        if (mDySinceDirectionChange > 10
+                && child.getVisibility() == View.VISIBLE
+                && !mIsHiding) {
+            hide(child);
+        } else if (mDySinceDirectionChange < -10
+                && child.getVisibility() == View.GONE
+                && !mIsShowing) {
+            show(child);
         }
     }
 
-    // Same animation that FloatingActionButton.Behavior uses to hide the FAB when the AppBarLayout exits
-    private void animateOut(final FloatingActionButton button) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            ViewCompat.animate(button).translationY(button.getHeight() + getMarginBottom(button)).setInterpolator(INTERPOLATOR).withLayer()
-                    .setListener(new ViewPropertyAnimatorListener() {
-                        public void onAnimationStart(View view) {
-                            MyBehavior.this.mIsAnimatingOut = true;
-                        }
+    /**
+     * Hide the quick return view.
+     *
+     * Animates hiding the view, with the view sliding down and out of the screen.
+     * After the view has disappeared, its visibility will change to GONE.
+     *
+     * @param view The quick return view
+     */
+    private void hide(final View view) {
+        mIsHiding = true;
+        ViewPropertyAnimator animator = view.animate()
+                .translationY(view.getHeight())
+                .setInterpolator(INTERPOLATOR)
+                .setDuration(200);
 
-                        public void onAnimationCancel(View view) {
-                            MyBehavior.this.mIsAnimatingOut = false;
-                        }
+        animator.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {}
 
-                        public void onAnimationEnd(View view) {
-                            MyBehavior.this.mIsAnimatingOut = false;
-                            view.setVisibility(View.GONE);
-                        }
-                    }).start();
-        } else {
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                // Prevent drawing the View after it is gone
+                mIsHiding = false;
+                view.setVisibility(View.GONE);
+            }
 
-        }
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                // Canceling a hide should show the view
+                mIsHiding = false;
+                if (!mIsShowing) {
+                    show(view);
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        animator.start();
     }
 
-    // Same animation that FloatingActionButton.Behavior uses to show the FAB when the AppBarLayout enters
-    private void animateIn(FloatingActionButton button) {
-        button.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= 14) {
-            ViewCompat.animate(button).translationY(0)
-                    .setInterpolator(INTERPOLATOR).withLayer().setListener(null)
-                    .start();
-        } else {
+    /**
+     * Show the quick return view.
+     *
+     * Animates showing the view, with the view sliding up from the bottom of the screen.
+     * After the view has reappeared, its visibility will change to VISIBLE.
+     *
+     * @param view The quick return view
+     */
+    private void show(final View view) {
+        mIsShowing = true;
+        ViewPropertyAnimator animator = view.animate()
+                .translationY(0)
+                .setInterpolator(INTERPOLATOR)
+                .setDuration(200);
 
-        }
-    }
+        animator.setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                view.setVisibility(View.VISIBLE);
+            }
 
-    private int getMarginBottom(View v) {
-        int marginBottom = 0;
-        final ViewGroup.LayoutParams layoutParams = v.getLayoutParams();
-        if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
-            marginBottom = ((ViewGroup.MarginLayoutParams) layoutParams).bottomMargin;
-        }
-        return marginBottom;
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mIsShowing = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+                // Canceling a show should hide the view
+                mIsShowing = false;
+                if (!mIsHiding) {
+                    hide(view);
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {}
+        });
+
+        animator.start();
     }
 }

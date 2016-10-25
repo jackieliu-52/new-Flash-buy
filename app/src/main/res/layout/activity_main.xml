@@ -39,15 +39,16 @@
     <!--app:stl_underlineThickness="1dp"-->
     <!--app:stl_drawDecorationAfterTab = "true"-->
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="76dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
-        android:src="@android:drawable/ic_menu_camera"
-        app:layout_behavior="com.jackie.flash_buy.ui.behavior.MyBehavior"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/fab"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:layout_marginBottom="76dp"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:layout_marginEnd="16dp"-->
+        <!--android:src="@android:drawable/ic_menu_camera"-->
+        <!--app:layout_behavior="com.jackie.flash_buy.ui.behavior.MyBehavior"/>-->
+    <include layout="@layout/btns" />
 
 </android.support.design.widget.CoordinatorLayout>

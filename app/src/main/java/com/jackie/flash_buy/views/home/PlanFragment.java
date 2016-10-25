@@ -2,6 +2,7 @@ package com.jackie.flash_buy.views.home;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,10 +19,12 @@ import android.widget.AbsListView;
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.adapter.GoodsAdapter;
+import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.contracts.home.PlanContract;
 import com.jackie.flash_buy.contracts.home.TypeListener;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.TwoTuple;
+import com.jackie.flash_buy.ui.NestedScrollingListView;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerAdapter;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerViewHolder;
@@ -29,6 +32,10 @@ import com.jackie.flash_buy.ui.commonRecyclerView.DividerDecoration;
 import com.jackie.flash_buy.ui.commonRecyclerView.RecyclerItemClickListener;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.views.scan.ScanActivity;
+import com.lzp.floatingactionbuttonplus.FabTagLayout;
+import com.lzp.floatingactionbuttonplus.FloatingActionButtonPlus;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +56,14 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     private com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView rvType;
     CommonRecyclerAdapter commonRecyclerAdapter; //种类
 
-    private StickyListHeadersListView lvItems;
+    private NestedScrollingListView lvItems;
     private GoodsAdapter mGoodsAdapter;  //商品的adapter
 
     //fab
-    private FloatingActionButton mFloatingActionButton;
+//    private FloatingActionButton mFloatingActionButton;
     private boolean visible;//是否可见
+    private FloatingActionButtonPlus mActionButtonPlus;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,14 +104,14 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             //相当于Fragment的onResume
             Log.i(TAG,"可见");
             visible= true;
-            if(mFloatingActionButton != null)
-                mFloatingActionButton.setVisibility(View.VISIBLE);
+//            if(mFloatingActionButton != null)
+//                mFloatingActionButton.setVisibility(View.VISIBLE);
         } else {
             //相当于Fragment的onPause
             Log.i(TAG,"不可见");
             visible = false;
-            if(mFloatingActionButton != null)
-                mFloatingActionButton.setVisibility(View.INVISIBLE);
+//            if(mFloatingActionButton != null)
+//                mFloatingActionButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -110,18 +119,25 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.plan_frag, container, false);
-        mFloatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        mActionButtonPlus =(FloatingActionButtonPlus) getActivity().findViewById(R.id.fabPlus);
+        mActionButtonPlus.setOnItemClickListener(new FloatingActionButtonPlus.OnItemClickListener() {
             @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                Intent intent =new Intent(mContext,ScanActivity.class);
-                intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
-                startActivity(intent);
+            public void onItemClick(FabTagLayout tagView, int position) {
+                EventBus.getDefault().post(new MessageEvent("Click btn" + position));
             }
         });
+//        mFloatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+//
+//        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+////                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+////                        .setAction("Action", null).show();
+//                Intent intent =new Intent(mContext,ScanActivity.class);
+//                intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
+//                startActivity(intent);
+//            }
+//        });
 
         this.rvType = (CommonRecycleView) root.findViewById(R.id.rvType);
 
@@ -151,7 +167,12 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
                 })
         );
         //listView
-        this.lvItems = (StickyListHeadersListView) root.findViewById(R.id.lvItems);
+        this.lvItems = (NestedScrollingListView) root.findViewById(R.id.lvItems);
+
+        //API21以上才有效果----第二种方式，比较简便
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            lvItems.setNestedScrollingEnabled(true);
+        }
 
         mGoodsAdapter = new GoodsAdapter(mContext,R.layout.item_goods,new ArrayList<LineItem>(0),this);
 
