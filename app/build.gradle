@@ -56,6 +56,12 @@ dependencies {
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
     //连接手机的库
     compile 'com.skyfishjy.ripplebackground:library:1.0.1'
-    //fab
+    //新的fab
     compile 'com.lzp.floatingactionbutton:floatingactionbuttonplus:1.0.0'
+    //图片轮播
+    compile 'com.youth.banner:banner:1.4.1'
+    //picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    //底部
+    compile 'com.flipboard:bottomsheet-core:1.5.1'
 }

@@ -1,7 +1,6 @@
 package com.jackie.flash_buy.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.jackie.flash_buy.R;
-import com.jackie.flash_buy.contracts.home.TypeListener;
+import com.jackie.flash_buy.contracts.plan.TypeListener;
 import com.jackie.flash_buy.model.LineItem;
-import com.jackie.flash_buy.views.home.PlanFragment;
 
 
 import java.util.List;

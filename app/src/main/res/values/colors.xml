@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF9800</color>
-    <color name="colorPrimaryDark">#F57C00</color>
-    <color name="colorPrimaryLight">#FFE0B2</color>
+    <color name="colorPrimary">#FF828B</color>
+    <color name="colorPrimaryDark">#FF5A5E</color>
+    <color name="colorPrimaryLight">#FFB2BA</color>
     <color name="colorAccent">#448AFF</color>
     <color name="colorText">#212121</color>
     <color name="colorSecondText">#757575</color>
     <color name="colorDevider"> #BDBDBD</color>
 
     <!-- 灰色 -->
+    <color name="bg_space">#f2f2f2</color>
+    <color name="real_white">#F6F6F6</color>
     <color name="bg_Gray_light">#EEEEEE</color>
     <color name="bg_Gray">#f7f7f7</color>
     <color name="grey_light">#DDDDDD</color>
@@ -51,8 +53,11 @@
     <color name="orange_8">#F57C00</color>
 
     <!-- select和没select-->
-    <color name="icon_selected">#FF9800</color>
+    <color name="icon_selected">#FF828B</color>
     <color name="icon_not_selected">#8c8c8c</color>
 
     <color name="scan_bg">#7f000000</color>
+
+    <color name="btn_send_normal">#02c754</color>
+    <color name="btn_send_pressed">#006633</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.jackie.flash_buy.contracts.home;
+package com.jackie.flash_buy.contracts.plan;
 
 import com.jackie.flash_buy.BasePresenter;
 import com.jackie.flash_buy.BaseView;
@@ -25,5 +25,6 @@ public interface PlanContract {
         int getSelectedPosition(String pid);       //根据商品的pid来获取第一个具体LineItem的位置
         void add(LineItem lineItem);   //添加一个预购商品
         void remove(LineItem lineItem); //减少一个预购商品
+        void end();  //释放资源
     }
 }

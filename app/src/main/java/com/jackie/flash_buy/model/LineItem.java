@@ -15,7 +15,7 @@ public class LineItem implements Parcelable {
     //新增
     public boolean isBulk = false; //是否是散装商品
 
-    private int id;
+    public int id;
     public LineItem() {
     }
 

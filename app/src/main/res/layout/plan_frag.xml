@@ -1,23 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-
-    <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
-        android:layout_width="75dp"
-        android:id="@+id/rvType"
-        android:layout_height="match_parent">
-    </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
-
-
-    <com.jackie.flash_buy.ui.NestedScrollingListView
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_above="@+id/bottom"
         android:layout_width="match_parent"
-        android:background="#fff"
-        android:id="@+id/lvItems"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_height="match_parent">
-    </com.jackie.flash_buy.ui.NestedScrollingListView>
+        <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
+            android:layout_width="75dp"
+            android:id="@+id/rvType"
+            android:layout_height="match_parent">
+        </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
 
-</LinearLayout>
+
+        <com.jackie.flash_buy.ui.NestedScrollingListView
+            android:layout_width="match_parent"
+            android:background="#fff"
+            android:id="@+id/lvItems"
+            android:layout_height="match_parent">
+        </com.jackie.flash_buy.ui.NestedScrollingListView>
+    </LinearLayout>
+
+<!--
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+-->
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:background="#aa000000"
+                  android:id="@+id/bottom"
+                  android:clickable="true"
+                  android:onClick="onClick"
+                  android:gravity="center_vertical"
+                  android:layout_alignParentBottom="true"
+                  android:layout_height="50dp">
+        
+        <RelativeLayout
+            android:layout_width="60dp"
+            android:layout_height="match_parent">
+            <ImageView android:layout_centerInParent="true"
+                       android:src="@drawable/icon_cart"
+                       android:layout_width="32dp"
+                       android:id="@+id/imgCart"
+                       android:layout_height="32dp" />
+
+            <TextView android:gravity="center"
+                      android:id="@+id/tvCount"
+                      android:layout_marginTop="5dp"
+                      android:textColor="#fff"
+                      android:text="1"
+                      android:visibility="gone"
+                      android:layout_marginRight="5dp"
+                      android:textSize="12sp"
+                      android:layout_alignParentRight="true"
+                      android:background="@drawable/circle_red"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content" />
+        </RelativeLayout>
+        <TextView android:layout_marginLeft="10dp"
+                  android:gravity="center_vertical"
+                  android:text="￥ 0"
+                  android:textSize="20sp"
+                  android:textColor="#fff"
+                  android:layout_width="0dp"
+                  android:layout_weight="1"
+                  android:id="@+id/tvCost"
+                  android:layout_height="wrap_content" />
+
+        <TextView android:textColor="#fff"
+                  android:layout_width="wrap_content"
+                  android:text="￥100元"
+                  android:id="@+id/tvTips"
+                  android:layout_marginRight="10dp"
+                  android:gravity="center"
+                  android:layout_height="match_parent" />
+    </LinearLayout>
+</RelativeLayout>

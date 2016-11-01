@@ -4,17 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,12 +25,16 @@ import com.jackie.flash_buy.model.InternetItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.TwoTuple;
-import com.jackie.flash_buy.presenters.home.PlanPresenter;
+import com.jackie.flash_buy.presenters.plan.PlanPresenter;
 import com.jackie.flash_buy.ui.NoScrollViewPager;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.utils.Util;
 import com.jackie.flash_buy.views.TestFragment;
 import com.jackie.flash_buy.views.goods.GoodsActivity;
+import com.jackie.flash_buy.views.plan.PlanFragment;
+import com.jackie.flash_buy.views.scan.ScanActivity;
+import com.lzp.floatingactionbuttonplus.FabTagLayout;
+import com.lzp.floatingactionbuttonplus.FloatingActionButtonPlus;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
@@ -62,17 +61,33 @@ public class MainActivity extends BaseActivity {
     private NoScrollViewPager mViewPager;
     private SmartTabLayout mSmartTabLayout;
 
-    private PlanFragment mPlanFragment;
-    private PlanPresenter mPlanPresenter;
+
+
+    private HomeFragment mHomeFragment;
+
     private CoordinatorLayout clContent;
+    private FloatingActionButtonPlus mActionButtonPlus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         EventBus.getDefault().register(this);
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+
+        mActionButtonPlus =(FloatingActionButtonPlus) findViewById(R.id.fabPlus);
+        mActionButtonPlus.setOnItemClickListener(new FloatingActionButtonPlus.OnItemClickListener() {
+            @Override
+            public void onItemClick(FabTagLayout tagView, int position) {
+                if(position == 0){
+                    Intent intent =new Intent(mContext,ScanActivity.class);
+                    intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
+                    startActivity(intent);
+                }
+                //1是favorite,2是cart
+
+                //EventBus.getDefault().post(new MessageEvent("Click btn" + position));
+            }
+        });
         mContext = this;
         clContent = (CoordinatorLayout) findViewById(R.id.clt);
         initUI();
@@ -146,10 +161,10 @@ public class MainActivity extends BaseActivity {
             public BaseFragment getItem(int position) {
                 switch (position){
                     case 0:
-                        mPlanFragment = PlanFragment.GetInstance();
-                        mPlanPresenter = PlanPresenter.GetInstance(mPlanFragment);
-                        return  mPlanFragment;
+                        mHomeFragment = HomeFragment.GetInstance();
+                        return  mHomeFragment;
                     case 1:
+
                         return new TestFragment();
                     case 2:
                         return new TestFragment();

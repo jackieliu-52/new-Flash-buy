@@ -1,4 +1,4 @@
-package com.jackie.flash_buy.contracts.home;
+package com.jackie.flash_buy.contracts.plan;
 
 import com.jackie.flash_buy.model.LineItem;
 

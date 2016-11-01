@@ -1,6 +1,6 @@
-package com.jackie.flash_buy.presenters.home;
+package com.jackie.flash_buy.presenters.plan;
 
-import com.jackie.flash_buy.contracts.home.PlanContract;
+import com.jackie.flash_buy.contracts.plan.PlanContract;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.TwoTuple;
@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class PlanPresenter implements PlanContract.Presenter {
     private final PlanContract.View mPlanView;
+
     //因为fragment是单例模式，所以这里也是单例模式
     private static PlanPresenter instance = null;
 
@@ -155,4 +156,10 @@ public class PlanPresenter implements PlanContract.Presenter {
         }
         Log.e("PlanPresenter", "没有这个Type可以remove");
     }
+    @Override
+    public void end(){
+        instance = null; //需要释放掉
+    }
+
+
 }
