@@ -140,8 +140,8 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
                         tvMinus.setVisibility(View.VISIBLE);
                         tvCount.setVisibility(View.VISIBLE);
                     }
-                    lineItem.addNum();
-                    tvCount.setText(String.valueOf(lineItem.getNum()));  //数量变化
+                    //lineItem.addNum();
+                    tvCount.setText(String.valueOf(lineItem.getNum() + 1));  //数量变化
                     mListener.add(lineItem,false);
                 }
                 break;
@@ -151,9 +151,9 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
                         tvMinus.setVisibility(View.GONE);
                         tvCount.setVisibility(View.GONE);
                     }
-                    lineItem.minusNum();
-                    tvCount.setText(String.valueOf(lineItem.getNum()));  //数量变化
-                    mListener.remove(lineItem,false);
+                    //lineItem.minusNum();
+                    tvCount.setText(String.valueOf(lineItem.getNum() - 1));  //数量变化
+                    mListener.removeItem(lineItem,false);
                 }
                 break;
                 default:

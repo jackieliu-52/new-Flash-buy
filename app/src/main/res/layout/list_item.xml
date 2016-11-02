@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/list_item_view"
+        android:layout_width="102dp"
+        android:layout_height="52dp"
+        fresco:placeholderImage="@mipmap/ic_launcher"
+        fresco:roundAsCircle="true"
+
+        />
+    <TextView
+        android:textSize="18sp"
+        android:id="@+id/tv_good_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:text="商品名称"/>
+     <TextView
+         android:id="@+id/tv_num"
+         android:textSize="18sp"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="   ×  1"/>
+
+    <LinearLayout
+        android:gravity="right"
+        android:paddingRight="20dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/item_1price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.00"/>
+        <TextView
+            android:id="@+id/item_all_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.00"/>
+
+    </LinearLayout>
+    </LinearLayout>

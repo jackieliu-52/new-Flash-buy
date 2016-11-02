@@ -24,9 +24,14 @@
             android:layout_centerInParent="true"
             android:src="@drawable/ic_shopping_basket"/>
     </RelativeLayout>
-    <ListView
-        android:id="@+id/list_cart"
+    <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
+        android:id="@+id/plan_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="match_parent">
+
+    </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         />
 </LinearLayout>

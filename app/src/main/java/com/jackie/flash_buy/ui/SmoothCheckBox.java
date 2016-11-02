@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jackie.flash_buy.utils;
+package com.jackie.flash_buy.ui;
 
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
@@ -34,6 +34,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Checkable;
 
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.utils.Util;
 
 
 /**

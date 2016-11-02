@@ -12,7 +12,7 @@ import android.view.MotionEvent;
 public class NoScrollViewPager extends ViewPager {
 
     private boolean mScrollble = false; //禁止滑动
-    private static final int DEFAULT_OFFSCREEN_PAGES = 0;  //取消预加载
+    public static final int DEFAULT_OFFSCREEN_PAGES = 0;  //取消预加载
 
 
     public NoScrollViewPager(Context context) {

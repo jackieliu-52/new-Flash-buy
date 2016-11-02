@@ -1,6 +1,8 @@
 package com.jackie.flash_buy.views.plan;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,21 +16,29 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.adapter.GoodsAdapter;
+import com.jackie.flash_buy.bus.PageEvent;
 import com.jackie.flash_buy.contracts.plan.PlanContract;
 import com.jackie.flash_buy.contracts.plan.TypeListener;
+import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.TwoTuple;
 import com.jackie.flash_buy.ui.NestedScrollingListView;
+import com.jackie.flash_buy.ui.SmoothCheckBox;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerAdapter;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerViewHolder;
 import com.jackie.flash_buy.ui.commonRecyclerView.DividerDecoration;
 import com.jackie.flash_buy.ui.commonRecyclerView.RecyclerItemClickListener;
+import com.jackie.flash_buy.views.home.MainActivity;
+import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +60,16 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     private NestedScrollingListView lvItems;
     private GoodsAdapter mGoodsAdapter;  //商品的adapter
     //底部
+    private View bottom;
     private BottomSheetLayout bottomSheetLayout;
     private View bottomSheet;
+    private TextView total_cost;
+    private double total_price; //总价
+    private TextView total_cost1; //总价1
+
+    //预购商品
+    private CommonRecycleView mCommonRecycleView;
+    CommonRecyclerAdapter mCommonRecyclerAdapter; //所需要购买商品
 
 
     private boolean visible;//是否可见
@@ -112,9 +130,17 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.plan_frag, container, false);
+        //底部布局
+        bottomSheetLayout = (BottomSheetLayout) root.findViewById(R.id.bottomSheetLayout);
+        total_cost1 = (TextView) root.findViewById(R.id.tv_total_cost);
+        root.findViewById(R.id.iv_checkout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog();
+            }
+        });
 
-
-
+        //上面的布局
         this.rvType = (CommonRecycleView) root.findViewById(R.id.rvType);
 
         rvType.setLayoutManager(new LinearLayoutManager(mContext));
@@ -150,7 +176,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             lvItems.setNestedScrollingEnabled(true);
         }
 
-        mGoodsAdapter = new GoodsAdapter(mContext,R.layout.item_goods,new ArrayList<LineItem>(0),this);
+        mGoodsAdapter = new GoodsAdapter(mContext,R.layout.goods_item,new ArrayList<LineItem>(0),this);
 
         lvItems.setAdapter(mGoodsAdapter);
         lvItems.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -163,7 +189,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 //根据firstVisibleItem获取分类ID，根据分类id获取左侧要选中的位置
                 LineItem lineItem = mPresenter.getItems().get(firstVisibleItem);
-                //Log.i("test",lineItem.getItem().getPid());
+
                 //如果当前选中的selected的ID与当前最上面显示的Item的Id不一致的时候，就需要刷星页面
                 if(!commonRecyclerAdapter.selected.equals(lineItem.getItem().getPid())) {
                     commonRecyclerAdapter.selected = lineItem.getItem().getPid();
@@ -173,6 +199,14 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
                     rvType.smoothScrollToPosition(mPresenter.getSelectedGroupPosition(lineItem.getItem().getPid()));
                     Log.i(TAG,lineItem.getItem().getPid());
                 }
+            }
+        });
+
+        bottom = root.findViewById(R.id.bottom);
+        bottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBottomSheet();
             }
         });
         return root;
@@ -213,7 +247,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     @Override
     public void setItems(List<LineItem> lineItems){
         //更新数据
-        mGoodsAdapter = new GoodsAdapter(mContext,R.layout.item_goods,lineItems,this);
+        mGoodsAdapter = new GoodsAdapter(mContext,R.layout.goods_item,lineItems,this);
         lvItems.setAdapter(mGoodsAdapter);
     }
 
@@ -221,20 +255,51 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     public void add(LineItem lineItem,boolean refresh){
         mPresenter.add(lineItem);
         commonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
+        mGoodsAdapter.notifyDataSetChanged();
+        if(mCommonRecyclerAdapter != null){
+            mCommonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
+        }
+
+        if(total_cost != null){
+            total_price = mPresenter.unitPrice();
+            total_cost.setText(total_price + "元");
+            total_cost1.setText(total_price + "元");
+        }
     }
 
     @Override
-    public void remove(LineItem lineItem, boolean refresh){
+    public void removeItem(LineItem lineItem, boolean refresh){
         mPresenter.remove(lineItem);
         commonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
+        mGoodsAdapter.notifyDataSetChanged();
+        if(mCommonRecyclerAdapter != null){
+            mCommonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
+        }
+
+        if(total_cost != null){
+            total_price = mPresenter.unitPrice();
+            total_cost.setText(total_price + "");
+            total_cost1.setText(total_price + "元");
+        }
     }
 
 
 
     private View createBottomSheetView(){
         View view = LayoutInflater.from(mContext).inflate(R.layout.layout_bottom_sheet,(ViewGroup) getActivity().getWindow().getDecorView(),false);
-
-
+        mCommonRecycleView = (CommonRecycleView) view.findViewById(R.id.plan_list);
+        mCommonRecycleView.setLayoutManager(new LinearLayoutManager(mContext));
+        mCommonRecyclerAdapter  = getAdapter();
+        mCommonRecycleView.setAdapter(mCommonRecyclerAdapter);
+        view.findViewById(R.id.iv_checkout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog();
+            }
+        });
+        total_cost = (TextView) view.findViewById(R.id.tv_total_cost);
+        total_price = mPresenter.unitPrice();
+        total_cost.setText(total_price + "");
         return view;
     }
 
@@ -247,5 +312,91 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         }else {
             bottomSheetLayout.showWithSheetView(bottomSheet);
         }
+    }
+    /**
+     * 确定用户是否要开始购物
+     */
+    private void showDialog() {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(mContext);
+        builder.setTitle("开始购物");
+        builder.setMessage("您是否要开始购物?");
+        builder.setNegativeButton("取消", null);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                for(TwoTuple<Boolean,LineItem> temp : MainActivity.PlanBuy){
+                    if(temp.first) {
+                        MainActivity.realPlanBuy.add(temp.second);
+                    }
+                }
+                mCommonRecyclerAdapter.clearAll();  //删除所有数据
+                MainActivity.PlanBuy = new ArrayList<>(); //清空数据
+
+
+                //与此同时，应该通知map的Activity准备好地图
+                getActivity().finish();//先关闭Activity
+
+                //虽然退出了Activity，但是还是会执行这段代码
+                EventBus.getDefault().post(new PageEvent(1));
+            }
+        });
+        builder.show();
+    }
+
+
+    /**
+     * 获得顾客预购商品的Adapter
+     * @return
+     */
+    private CommonRecyclerAdapter<TwoTuple<Boolean,LineItem>> getAdapter(){
+        return new CommonRecyclerAdapter<TwoTuple<Boolean,LineItem>>(mContext, R.layout.plan_items, MainActivity.PlanBuy) {
+
+            @Override
+            public void convert(final CommonRecyclerViewHolder holder, final TwoTuple<Boolean,LineItem> o) {
+
+                Item item = o.second.getItem();
+                holder.setText(R.id.tv_item_name, item.getName());
+                holder.setText(R.id.tv_item_date, item.getPid());   //区域,考虑使用EPC字段
+                if(!item.getImage().equals("")){
+                    //加载图片
+                    Picasso.with(mContext)
+                            .load(item.getImage())
+                            .placeholder(R.mipmap.ic_launcher)
+                            .into(((ImageView) holder.getView(R.id.ci_image)));
+                }
+
+
+
+
+                SmoothCheckBox scb = (SmoothCheckBox) holder.getView(R.id.scb);
+                scb.setChecked(o.first);
+                scb.setOnCheckedChangeListener(new SmoothCheckBox.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(SmoothCheckBox checkBox, boolean isChecked) {
+                        int pos = holder.getLayoutPosition();  //获得下标
+
+                        MainActivity.PlanBuy.get(pos).first = isChecked;
+
+                        holder.getView(R.id.v_color).setVisibility(View.VISIBLE);
+                        Drawable color = getResources().getDrawable(R.color.bg_Gray);
+                        holder.getView(R.id.v_color).setBackground(color);
+                    }
+                });
+                holder.setText(R.id.planCount,o.second.getNum()+"");
+                holder.getView(R.id.planTvAdd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        add(o.second,true);
+                    }
+                });
+                holder.getView(R.id.planTvMinus).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        removeItem(o.second,true);
+                    }
+                });
+
+            }
+        };
     }
 }

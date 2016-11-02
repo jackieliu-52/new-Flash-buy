@@ -11,5 +11,5 @@ public interface TypeListener {
     //添加预购清单
     void add(LineItem lineItem, boolean refresh);
     //删除预购清单
-    void remove(LineItem lineItem, boolean refresh);
+    void removeItem(LineItem lineItem, boolean refresh);
 }

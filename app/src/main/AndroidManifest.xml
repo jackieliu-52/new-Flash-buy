@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.SENSOR_ENABLE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
+
     <application
         android:name=".Application"
         android:allowBackup="true"
@@ -72,6 +73,22 @@
         <activity android:name=".views.plan.PlanActivity"
                   android:label=""
                   android:theme="@style/AppTheme233"/>
+
+        <activity android:name=".views.order.OrderActivity"
+                  android:theme="@style/AppTheme233"/>
+
+        <activity android:name=".views.sales.CommentActivity"
+                  android:theme="@style/AppTheme233.TransparentActivity"/>
+
+        <activity android:name=".views.sales.SalesActivity"
+                  android:theme="@style/AppTheme233"/>
+        <meta-data
+            android:name="SEEKCY_SDK_KEY"
+            android:value="lkf13nwlkNDSN03k3kJKDFJALNK399kk" />
+        <service android:name="com.skybeacon.sdk.locate.BleScanService" />
+        <service android:name="com.skybeacon.sdk.config.BluetoothLeService" />
+
+
     </application>
 
 </manifest>

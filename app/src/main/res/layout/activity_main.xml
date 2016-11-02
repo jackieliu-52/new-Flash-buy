@@ -30,6 +30,7 @@
         android:layout_height="60dp"
         android:layout_gravity="bottom"
         android:background="@color/real_white"
+        app:stl_dividerThickness="0dp"
         app:stl_underlineThickness="0dp"
         app:stl_distributeEvenly="true"
         app:stl_indicatorThickness="0dp"

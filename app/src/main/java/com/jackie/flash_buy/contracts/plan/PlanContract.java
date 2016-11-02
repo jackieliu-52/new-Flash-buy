@@ -26,5 +26,6 @@ public interface PlanContract {
         void add(LineItem lineItem);   //添加一个预购商品
         void remove(LineItem lineItem); //减少一个预购商品
         void end();  //释放资源
+        double unitPrice(); //总价
     }
 }

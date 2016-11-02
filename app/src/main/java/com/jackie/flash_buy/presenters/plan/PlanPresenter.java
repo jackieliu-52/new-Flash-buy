@@ -57,22 +57,22 @@ public class PlanPresenter implements PlanContract.Presenter {
         mTypes.add(new TwoTuple<String, Integer>("蔬菜", 0));
         mTypes.add(new TwoTuple<String, Integer>("零食", 0));
 
-        mLineItems.add(new LineItem(new Item("苹果", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果1", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果2", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果3", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果4", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果5", "蔬菜", "", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果", "蔬菜", "1", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果1", "蔬菜", "2", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果2", "蔬菜", "3", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果3", "蔬菜", "4", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果4", "蔬菜", "5", "", "垃圾公司", 3.22, "没有规格"),1));
+        mLineItems.add(new LineItem(new Item("苹果5", "蔬菜", "6", "", "垃圾公司", 3.22, "没有规格"),1));
 
-        mLineItems.add(new LineItem(new Item("巧克力", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果1", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果2", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果3", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果4", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果5", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果6", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果7", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果8", "零食", "", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("巧克力", "零食", "11", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果1", "零食", "12", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果2", "零食", "13", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果3", "零食", "14", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果4", "零食", "15", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果5", "零食", "16", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果6", "零食", "17", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果7", "零食", "18", "", "垃圾公司", 2.33, "没有规格"),2));
+        mLineItems.add(new LineItem(new Item("糖果8", "零食", "19", "", "垃圾公司", 2.33, "没有规格"),2));
 
     }
 
@@ -112,6 +112,8 @@ public class PlanPresenter implements PlanContract.Presenter {
             }
         }
         if (!exist) {
+            lineItem.addNum();
+           // Log.i("TG",lineItem.getNum());
             MainActivity.PlanBuy.add(new TwoTuple<Boolean,LineItem>(true,lineItem));
         }
         //不管之前怎么处理，add肯定需要将该大品类的数量加1，然后通知Adapter刷新UI
@@ -139,6 +141,10 @@ public class PlanPresenter implements PlanContract.Presenter {
         for (TwoTuple<Boolean,LineItem> lineItem1 : MainActivity.PlanBuy) {
             if (lineItem1.second.getGoods_ID().equals(lineItem.getGoods_ID())) {
                 lineItem1.second.minusNum(); //数量减一
+                if(lineItem1.second.getNum() <= 0){
+                    //如果数量归零删除这个
+                    MainActivity.PlanBuy.remove(lineItem1);  //删除这个商品
+                }
                 removeTypeNum(lineItem.getItem().getPid());
                 return;
             }
@@ -161,5 +167,13 @@ public class PlanPresenter implements PlanContract.Presenter {
         instance = null; //需要释放掉
     }
 
-
+    @Override
+    public double unitPrice(){
+        double sum = 0;
+        for(TwoTuple<Boolean,LineItem> lineItem1 : MainActivity.PlanBuy){
+            LineItem item = lineItem1.second;
+            sum += item.getUnitPrice();
+        }
+        return  sum;
+    }
 }

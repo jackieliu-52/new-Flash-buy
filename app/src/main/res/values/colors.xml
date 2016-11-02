@@ -55,9 +55,17 @@
     <!-- select和没select-->
     <color name="icon_selected">#FF828B</color>
     <color name="icon_not_selected">#8c8c8c</color>
+    <color name="icon_enabled">#FFFFFFFF</color>
+    <color name="icon_disabled">#FF63727B</color>
 
     <color name="scan_bg">#7f000000</color>
 
     <color name="btn_send_normal">#02c754</color>
     <color name="btn_send_pressed">#006633</color>
+
+    <!-- white-->
+    <color name="white">#fafafa</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="realwhite">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>
