@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,6 +54,7 @@ public class OrderActivity extends AppCompatActivity {
     MaterialListView mOrderList;
 
     private Toolbar toolbar;
+    private TextView checkout;
 
     private Context mContext;
     private Order mOrder;
@@ -65,21 +67,39 @@ public class OrderActivity extends AppCompatActivity {
         mContext = this;
         setContentView(R.layout.activity_order);
         ButterKnife.bind(this);
-//        // Handle Toolbar
-//        toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setTitle("订单详情");   //设置标题
-//        //set the back arrow in the toolbar
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Handle Toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar1);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("订单详情");   //设置标题
+        //set the back arrow in the toolbar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (getIntent().getParcelableExtra("order") != null) {
             mOrder = getIntent().getParcelableExtra("order");
         }
         init();
-
-
+        checkout = (TextView) findViewById(R.id.tvCheckOut);
+        checkout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EventBus.getDefault().post(new MessageEvent("付款！"));
+                finish();
+                //通知服务器
+            }
+        });
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * 这是兼容的 AlertDialog
      */

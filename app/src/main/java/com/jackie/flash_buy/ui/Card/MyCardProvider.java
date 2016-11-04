@@ -40,6 +40,7 @@ public class MyCardProvider extends CardProvider<MyCardProvider> {
         RecyclerView recyclerView = (RecyclerView) findViewById(view,R.id.list_items,RecyclerView.class);
         if (recyclerView != null) {
             ListRecyclerAdapter adapter = new ListRecyclerAdapter(getContext(),mItems);
+
             recyclerView.setAdapter(adapter);
             //设置布局管理器
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());

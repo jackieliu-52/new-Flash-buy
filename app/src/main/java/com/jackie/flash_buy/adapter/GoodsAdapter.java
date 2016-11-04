@@ -10,11 +10,13 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.contracts.plan.TypeListener;
 import com.jackie.flash_buy.model.LineItem;
+import com.squareup.picasso.Picasso;
 
 
 import java.util.List;
@@ -96,11 +98,11 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
     class ViewHolder implements View.OnClickListener{
         private TextView name,price,tvAdd,tvMinus,tvCount,tvDetails;
         private LineItem lineItem;
-
+        private ImageView mImageView;
 
 
         public ViewHolder(View LineItemView,TypeListener mFragment){
-
+            mImageView = (ImageView) LineItemView.findViewById(R.id.img);
             name = (TextView) LineItemView.findViewById(R.id.tvName);
             price = (TextView) LineItemView.findViewById(R.id.tvPrice);
             tvCount = (TextView) LineItemView.findViewById(R.id.count);
@@ -120,6 +122,10 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
             name.setText(lineItem.getItem().getName());
             //LineItem.count = mContext.getSelectedLineItemCountById(LineItem.id);
             //tvCount.setText(String.valueOf(LineItem.count));
+            Picasso.with(mContext)
+                    .load(lineItem.getItem().getImage())
+                    .into(mImageView);
+            tvDetails.setText(lineItem.getItem().getSize());
             price.setText(lineItem.getItem().getPrice()+"元");
             if(lineItem.getNum() < 1){
                 tvCount.setVisibility(View.GONE);

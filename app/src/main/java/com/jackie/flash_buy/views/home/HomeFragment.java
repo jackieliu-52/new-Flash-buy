@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 /**
  * Created by Jack on 2016/11/1.
  */
@@ -117,11 +119,11 @@ public class HomeFragment extends BaseFragment {
         //设置图片集合
         banner.setImages(Arrays.asList(images));
         //设置banner动画效果
-        banner.setBannerAnimation(Transformer.DepthPage);
+        banner.setBannerAnimation(Transformer.BackgroundToForeground);
         //设置自动轮播，默认为true
         banner.isAutoPlay(true);
         //设置轮播时间
-        banner.setDelayTime(1500);
+        banner.setDelayTime(3000);
         //设置指示器位置（当banner模式中有指示器时）
         banner.setIndicatorGravity(BannerConfig.CENTER);
         //banner设置方法全部调用完毕时最后调用
@@ -137,12 +139,20 @@ public class HomeFragment extends BaseFragment {
     private void setBottom() {
         final List<Market> markets = new ArrayList<>();
         markets.add(new Market());
-        markets.add(new Market("家润多","中国最大的连锁超市","","","",1000));
-        markets.add(new Market("沃尔玛","世界最大的连锁超市","","","",500));
+        markets.add(new Market("家乐福","中国最大的连锁超市","http://obsyvbwp3.bkt.clouddn.com/carrefour.jpg","活动一：水产7折优惠","活动二：满200送100购物券",1000));
+        markets.add(new Market("沃尔玛","世界最大的连锁超市","http://obsyvbwp3.bkt.clouddn.com/walmart.jpg","活动一：","活动二：满200送100购物券",500));
         homeendrv.setAdapter(new CommonRecyclerAdapter<Market>(mContext,R.layout.rv_market_item,markets) {
             @Override
             public void convert(CommonRecyclerViewHolder holder, Market item) {
                 //这里进行转化
+                CircleImageView circleImageView = (CircleImageView)holder.getView(R.id.ivMarketLogo);
+                if(!item.getLogo().equals("")) {
+                    Picasso.with(mContext)
+                            .load(item.getLogo())
+                            .into(circleImageView);
+                }
+
+                //设置Logo
                 holder.setText(R.id.rvTvMarketName,item.getName());
                 holder.setText(R.id.rvTvMarketDes,item.getDesri());
                 holder.setText(R.id.rvTvMarketDis,item.getDistance()+"m");

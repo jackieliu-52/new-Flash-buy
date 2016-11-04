@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id = "@+id/clt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -23,12 +22,17 @@
 
 
     <!-- @android:color/transparent  透明色 -->
+    <android.support.design.widget.CoordinatorLayout
+        android:id = "@+id/clt"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <com.ogaclejapan.smarttablayout.SmartTabLayout
         android:id="@+id/stb"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_gravity="bottom"
+
         android:background="@color/real_white"
         app:stl_dividerThickness="0dp"
         app:stl_underlineThickness="0dp"
@@ -36,6 +40,7 @@
         app:stl_indicatorThickness="0dp"
         app:tabIndicatorHeight="0dp"
         />
+    </android.support.design.widget.CoordinatorLayout>
     <!--app:stl_indicatorInterpolation="linear"-->
     <!--app:stl_underlineThickness="1dp"-->
     <!--app:stl_drawDecorationAfterTab = "true"-->

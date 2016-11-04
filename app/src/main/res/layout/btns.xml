@@ -3,9 +3,9 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|end"
-    android:layout_marginBottom="60dp"
-    app:switchFabColor="@color/colorAccent"
-    app:switchFabIcon="@android:drawable/ic_menu_add"
+    android:layout_marginBottom="50dp"
+    app:switchFabColor="#5E88FC"
+    app:switchFabIcon="@drawable/ic_plus"
     app:layout_behavior="com.jackie.flash_buy.ui.behavior.MyBehavior"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -18,9 +18,9 @@
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_camera"
-            app:backgroundTint="#468cb7"
-            app:fabSize="mini" />
+            android:src="@drawable/ic_camera"
+            app:backgroundTint="#74DBEF"
+             />
     </com.lzp.floatingactionbuttonplus.FabTagLayout>
 
     <com.lzp.floatingactionbuttonplus.FabTagLayout
@@ -31,9 +31,9 @@
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_share"
-            app:backgroundTint="#818aa7"
-            app:fabSize="mini" />
+            android:src="@drawable/ic_star"
+            app:backgroundTint="@color/colorPrimaryDark"
+            />
     </com.lzp.floatingactionbuttonplus.FabTagLayout>
 
 
@@ -45,11 +45,24 @@
         <android.support.design.widget.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/sym_contact_card"
-            app:backgroundTint="#4BB7A7"
-            app:fabSize="mini" />
+            android:src="@drawable/ic_shop_cart"
+            app:backgroundTint="@color/colorPrimary"
+           />
     </com.lzp.floatingactionbuttonplus.FabTagLayout>
 
+
+    <com.lzp.floatingactionbuttonplus.FabTagLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:tagText="测试模式"
+        >
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_zoom"
+            app:backgroundTint="#264E86"
+             />
+    </com.lzp.floatingactionbuttonplus.FabTagLayout>
 
 
 </com.lzp.floatingactionbuttonplus.FloatingActionButtonPlus>

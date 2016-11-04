@@ -5,7 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar1"
+        app:elevation="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,11 +77,28 @@
             android:layout_gravity="center_vertical"
             />
     </LinearLayout>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#E6E8FA" />
     <com.dexafree.materialList.view.MaterialListView
         android:layout_width="fill_parent"
-        android:layout_height="300dp"
+        android:layout_height="350dp"
         android:id="@+id/order_list"/>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#E6E8FA" />
+    <TextView
+        android:padding="10dp"
+        android:gravity="center_horizontal"
+        android:textColor="#FFF"
+        android:text="付款"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:background="@color/colorAccent"
+        android:id="@+id/tvCheckOut"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"/>
 
 </LinearLayout>

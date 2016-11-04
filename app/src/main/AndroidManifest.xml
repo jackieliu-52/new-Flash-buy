@@ -82,12 +82,19 @@
 
         <activity android:name=".views.sales.SalesActivity"
                   android:theme="@style/AppTheme233"/>
+
+        <activity android:name=".views.home.LogInActivity"
+                  android:theme="@style/AppTheme233"/>
+
+        <activity android:name=".views.setting.SettingActivity"
+                  android:theme="@style/AppTheme233"/>
         <meta-data
             android:name="SEEKCY_SDK_KEY"
             android:value="lkf13nwlkNDSN03k3kJKDFJALNK399kk" />
         <service android:name="com.skybeacon.sdk.locate.BleScanService" />
         <service android:name="com.skybeacon.sdk.config.BluetoothLeService" />
 
+        <service android:name=".views.buy.LocationService"/>
 
     </application>
 

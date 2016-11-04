@@ -171,7 +171,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         //listView
         this.lvItems = (NestedScrollingListView) root.findViewById(R.id.lvItems);
 
-        //API21以上才有效果----第二种方式，比较简便
+        //API21以上才有效果,可以让Fab随着消失...然而改版后并没有fab了
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             lvItems.setNestedScrollingEnabled(true);
         }
@@ -278,7 +278,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
 
         if(total_cost != null){
             total_price = mPresenter.unitPrice();
-            total_cost.setText(total_price + "");
+            total_cost.setText(total_price + "元");
             total_cost1.setText(total_price + "元");
         }
     }

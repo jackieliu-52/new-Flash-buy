@@ -15,7 +15,9 @@ import com.jackie.flash_buy.BaseActivity;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.model.Market;
 import com.jackie.flash_buy.presenters.plan.PlanPresenter;
+import com.jackie.flash_buy.utils.RoundedTransformation;
 import com.jackie.flash_buy.utils.activity.ActivityUtils;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by Jack on 2016/11/1.
@@ -70,6 +72,11 @@ public class PlanActivity  extends BaseActivity{
             Market market = getIntent().getExtras().getParcelable("market");
             tvMarketDescri.setText(market.getDesri());
             tvMarketName.setText(market.getName());
+            if(!market.getLogo().equals(""))
+                Picasso.with(this)
+                        .load(market.getLogo())
+                        .transform( new RoundedTransformation())
+                        .into(ivMarketPhoto);
 
         }
     }

@@ -4,19 +4,12 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar2"
+        android:id="@+id/toolbar3"
         app:elevation="8dp"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         />
-
-    <FrameLayout
-        android:id="@+id/saleContentFrame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 </LinearLayout>

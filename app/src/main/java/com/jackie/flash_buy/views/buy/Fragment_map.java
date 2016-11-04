@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,17 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.jackie.flash_buy.R;
-import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.bus.PlanBuyEvent;
-import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
-import com.jackie.flash_buy.model.Round;
-import com.jackie.flash_buy.model.iBeaconView;
-import com.jackie.flash_buy.utils.InternetUtil;
-import com.jackie.flash_buy.utils.location.LocationHelper;
 import com.jackie.flash_buy.views.home.MainActivity;
 import com.onlylemi.mapview.library.MapView;
 import com.onlylemi.mapview.library.MapViewListener;
@@ -34,11 +26,6 @@ import com.onlylemi.mapview.library.layer.MarkLayer;
 import com.onlylemi.mapview.library.layer.RouteLayer;
 import com.onlylemi.mapview.library.test.TestData;
 import com.onlylemi.mapview.library.utils.MapUtils;
-import com.skybeacon.sdk.RangingBeaconsListener;
-import com.skybeacon.sdk.ScanServiceStateCallback;
-import com.skybeacon.sdk.locate.SKYBeacon;
-import com.skybeacon.sdk.locate.SKYBeaconManager;
-import com.skybeacon.sdk.locate.SKYRegion;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,9 +49,6 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     private Context mContext;
 
 
-    private static final SKYRegion ALL_SEEKCY_BEACONS_REGION = new SKYRegion("rid_all", null, null, null, null);
-    private SKYBeaconManager skyBeaconManager;
-
     public static List<Double> distances = new ArrayList<>(); //与各个ibeacon之间的距离
     private static final Double MAX = Double.MAX_VALUE;  //不能检测时的距离
 
@@ -80,26 +64,16 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     private List<String> marksName;  //货品名称
     public static List<Boolean> chosed = TestData.getChosed();
 
-    private PointF location; //当前定位的坐标
-    private List<iBeaconView> beacons; //所有beacons
-    private List<Round> mRounds;  //所有的rounds
+    public static PointF location; //当前定位的坐标
+
 
     private Timer timer = null;
     private TimerTask timerTask = null;
+    private boolean dingweing; //看看是否定位了
     private boolean visible; //是否可见
     private boolean openSensor = true; //是否打开传感器,默认打开
     private SensorManager sensorManager; //传感器
 
-    //圆心和距离
-    double[][] positions;
-    double[] dts;
-    RectF mRectF,mRectF1,mRectF2,mRectF3,mRectF4; //四个矩形，用于防止判定定位在货架上
-
-    //测试
-    private Button mButton; //打印指纹
-    private int times;  //打印次数
-    private boolean test; //测试
-    private TimerTask mTimerTask; //测试
 
 
     public static List<Integer> nums = new ArrayList<>();  //各个区域的数量
@@ -131,6 +105,8 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     public void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
+        sensorManager.unregisterListener(this); //关闭传感器
+
     }
 
     @Override
@@ -139,15 +115,16 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         Log.i(TAG,"onCreateView");
-        initBeacon();
+
+
         initMapDatas(); //初始化地图数据
 
         mapView = (MapView) view.findViewById(R.id.mapview);
-        mButton = (Button) view.findViewById(R.id.bt_test);
-        setButtonListen();
         loadMap();
+        //注册传感器
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor
+                (Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
 
-        loadMapDetails();
         //震动测试
   //    VibrateUtil.vibrate(mContext,1000);
 
@@ -171,6 +148,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         mapView.setMapViewListener(new MapViewListener() {
             @Override
             public void onMapLoadSuccess() {
+                //路径
                 routeLayer = new RouteLayer(mapView);
                 mapView.addLayer(routeLayer);
 
@@ -195,15 +173,21 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
                     }
                 });
 
-//                //绘制beacon
-//                Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-//                BitmapLayer bitmapLayer = new BitmapLayer(mapView, bmp);
-//                bitmapLayer.setLocation(beacons.get(0).location);
-//                mapView.addLayer(bitmapLayer);
+
+                locationLayer = new LocationLayer(mapView, new PointF(650, 760));  //起点
+                locationLayer.setOpenCompass(true);
+                locationLayer.setCompassIndicatorCircleRotateDegree(60);  //罗盘
+                locationLayer.setCompassIndicatorArrowRotateDegree(-30);  //方向
+                mapView.addLayer(locationLayer);
+
 
                 mapView.refresh();   //draw地图
                 Log.i("test","233");
                 loadMapDetails();  //加载细节
+                if(!dingweing) {
+                    startTimer(); //开始
+
+                }
             }
 
             @Override
@@ -219,13 +203,13 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         nodes = TestData.getNodesList();
         nodesContract = TestData.getNodesContactList();
         marks = TestData.getMarks();    //点
-        marksName = TestData.getMarksName();
+        marksName = TestData.getMarksName();  //点的名字
 
         MapUtils.init(nodes.size(), nodesContract.size());
     }
 
     /**
-     * 预购商品
+     * 预购商品数量的
      */
     private void loadMapDetails(){
         bmp3 =  BitmapFactory.decodeResource(getResources(), R.mipmap.n0);
@@ -243,62 +227,10 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         mapView.addLayer(bitmapLayer3);
 
 
-
-
-
-
         mapView.refresh();   //draw地图
     }
 
-    /**
-     * 初始化距离，设置beacon管理
-     */
-    private void initBeacon(){
-        beacons = new ArrayList<>();
-        mRounds = new ArrayList<>();
-        for(int i = 0 ;i < 3;i++){
-            distances.add(MAX);
-        }
-        positions = new double[][] { {524,326}, {122,471},{108,192}}; //三个beacon的位置
-        iBeaconView iBeaconView1 = new iBeaconView();
-        iBeaconView1.location = new PointF(524,326);
-        iBeaconView iBeaconView2 = new iBeaconView();
-        iBeaconView2.location = new PointF(122,471);
-        iBeaconView iBeaconView3 = new iBeaconView();
-        iBeaconView3.location = new PointF(108,192);
-        beacons.add(iBeaconView1);
-        beacons.add(iBeaconView2);
-        beacons.add(iBeaconView3);
-        //圆的初始化
-        mRounds.add(new Round(iBeaconView1.location.x,iBeaconView1.location.y,(float)MAX.doubleValue()));
-        mRounds.add(new Round(iBeaconView2.location.x,iBeaconView2.location.y,(float)MAX.doubleValue()));
-        mRounds.add(new Round(iBeaconView3.location.x,iBeaconView3.location.y,(float)MAX.doubleValue()));
 
-        mRectF = new RectF(0,0,750,760);    //整体
-        mRectF1 = new RectF(120,0,175,600);  //左1
-        mRectF2 = new RectF(176,0,230,600);  //左2
-        mRectF3 = new RectF(430,50,485,650);  //右1
-        mRectF4 = new RectF(486,50,540,650); //右2
-
-        SKYBeaconManager.getInstance().init(mContext);
-        SKYBeaconManager.getInstance().setCacheTimeMillisecond(3000);
-        SKYBeaconManager.getInstance().setScanTimerIntervalMillisecond(2000);
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.i(TAG,"onResume");
-        startRanging();   //开始扫描
-    }
-    @Override
-    public void onPause(){
-        super.onPause();
-        Log.i(TAG,"onPause");
-        stopRanging();  //关闭扫描
-        stopTimer();  //关闭计时器
-        sensorManager.unregisterListener(this); //关闭传感器
-    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -307,86 +239,45 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
             //相当于Fragment的onResume
             Log.i(TAG,"v");
             visible = true;
+            //如果不再定位中而且需要定位
+            if(!dingweing && MainActivity.status == 1){
+                startTimer(); //开始定位
+            }
         } else {
             //相当于Fragment的onPause
             Log.i(TAG,"in");
             visible = false;
+            //定位中
+            if(dingweing) {
+                stopTimer();  //关闭计时器
+            }
+
         }
     }
 
     private void startTimer() {
         stopTimer();
+        dingweing = true;
+        //Log.i(TAG, "开始定位233");
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                //如果可见才定位！
-                if (visible) {
-                    //首先看看还有那些商品没有被购买
-                    setMapDetail();
-                    //这里面进行定位操作
-                    double d1 = distances.get(0);
-                    double d2 = distances.get(1);
-                    double d3 = distances.get(2);
-                    dts = new double[]{d1 * 100, d2 * 100, d3 * 100};  //距离
-                    //Log.i("Location","d1: " + d1 + "米  d2:  " + d2 + "米  d3:  " + d3);
-                    boolean flag;
-                    flag = ((d1 != MAX) && (d2 != MAX) && (d3 != MAX));
-                    if (flag) {
-                        //开始定位
-                        Log.i(TAG, "开始定位");
-
-                        // 获得定位点
-                        double[] centroid = LocationHelper.getLocation(beacons,dts);
-
-
-                        if (centroid != null) {
-                            Log.i(TAG, "sucess");
-                            if (!mRectF.contains((float) centroid[0], (float) centroid[1])) {
-                                //如果定位结果超出地图的范围，那么不绘制
-                                return;
-                            }
-                            location = new PointF((float) centroid[0], (float) centroid[1]);
-
-                            //如果定位在货架上
-                            if (mRectF1.contains((float) centroid[0], (float) centroid[1])) {
-                                //如果在第一个矩形中
-                                location = new PointF(55, 299);
-                            }
-                            if (mRectF2.contains((float) centroid[0], (float) centroid[1])) {
-                                //如果在第2个矩形中
-                                location = new PointF(270, 300);
-                            }
-                            if (mRectF3.contains((float) centroid[0], (float) centroid[1])) {
-                                //如果在第3个矩形中
-                                location = new PointF(400, 300);
-                            }
-                            if (mRectF4.contains((float) centroid[0], (float) centroid[1])) {
-                                //如果在第4个矩形中
-                                location = new PointF(640, 300);
-                            }
-                        } else {
-                            Log.i(TAG, "error 233");
-                        }
-
-                        //如果有定位信息，就进行定位
-                        if (location != null) {
-                            InternetUtil.postStr("", InternetUtil.args4 + "=9&x="+location.x+"&y="+location.y);
-
-                            locationLayer.setCurrentPosition(location);
-                            mapView.refresh();           //刷新
-                        }
-                    } else {
-                        Log.i(TAG, "有ibeacon没有定位信息");
-                        EventBus.getDefault().post(new MessageEvent("定位失败！请检查蓝牙是否打开"));
-                    }
-                }
+               if(visible){
+                   //定位
+                   if(location != null){
+                       Log.i("location","x:"+ location.x+"   y:" + location.y);
+                       locationLayer.setCurrentPosition(location);
+                       mapView.refresh();           //刷新,可以不在UI线程中执行
+                   }
+               }
             }
         };
         timer.schedule(timerTask, 0, 2500);  //2.5s进行一次定位操作
     }
 
     private void stopTimer() {
+        dingweing = false;
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -398,111 +289,20 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     }
 
 
-    private void startRanging() {
-        //开始服务
-
-        SKYBeaconManager.getInstance().startScanService(new ScanServiceStateCallback() {
-
-            @Override
-            public void onServiceDisconnected() {
-                // TODO Auto-generated method stub
-                Log.i(TAG,"onServiceDisconnected");
-            }
-
-            @Override
-            public void onServiceConnected() {
-                // TODO Auto-generated method stub
-                Log.i(TAG,"onServiceConnected");
-                SKYBeaconManager.getInstance().startRangingBeacons(null);
-            }
-        });
-
-
-        SKYBeaconManager.getInstance().setRangingBeaconsListener(new RangingBeaconsListener() {
-            // 单id beacons扫描结果处理
-            @Override
-            public void onRangedBeacons(SKYRegion beaconRegion, @SuppressWarnings("rawtypes") List beaconList) {
-                // TODO Auto-generated method stub
-                if(beaconList.size() == 0)
-                    EventBus.getDefault().post(new MessageEvent("没有检测到蓝牙设备"));
-
-                for (int i = 0; i < beaconList.size(); i++) {
-                    iBeaconView beacon = new iBeaconView();
-                    beacon.mac = ((SKYBeacon) beaconList.get(i)).getDeviceAddress();
-                    beacon.rssi = ((SKYBeacon) beaconList.get(i)).getRssi();
-                    beacon.isMultiIDs = false;
-                    beacon.detailInfo = ((SKYBeacon) beaconList.get(i)).getProximityUUID() + "\r\nMajor: " + String.valueOf(((SKYBeacon) beaconList.get(i)).getMajor()) + "\tMinir: "
-                            + String.valueOf(((SKYBeacon) beaconList.get(i)).getMinor()) + "\r\n";
-                    beacon.uuid = ((SKYBeacon) beaconList.get(i)).getMinor();
-                    //获得距离
-                    double distance = ((SKYBeacon) beaconList.get(i)).getDistance();
-
-
-                    //因为这里只有三个beacon，所以可以直接处理序号问题
-                    //但是这里需要处理一下没有检测到的情况，也就是说distance为-1.0米的情况
-                    switch (beacon.uuid){
-                        case 1:
-                            if(distance != -1.0) {
-                                beacons.set(0,beacon);
-                                distances.set(0, distance);
-                            }
-                            break;
-                        case 2:
-                            if(distance != -1.0) {
-                                distances.set(1, distance);
-                                beacons.set(1,beacon);
-                            }
-                            break;
-                        case 3:
-                            if(distance != -1.0) {
-                                beacons.set(2,beacon);
-                                distances.set(2, distance);
-                            }
-                            break;
-                    }
-                }//for
-
-            }
-            // 多id beacons扫描结果处理，我们不适用
-            @Override
-            public void onRangedBeaconsMultiIDs(SKYRegion beaconRegion, @SuppressWarnings("rawtypes") List beaconMultiIDsList) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void onRangedNearbyBeacons(SKYRegion beaconRegion, List beaconList) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-    }
-
-    /**
-     * 停止扫描
-     */
-    private void stopRanging() {
-        SKYBeaconManager.getInstance().stopScanService();
-        SKYBeaconManager.getInstance().stopRangingBeasons(null);
-    }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void plan(PlanBuyEvent planBuyEvent){
+        Log.i("Test","MapLoadFinish2333");
+
         if(planBuyEvent.message.equals("initMap")){
             //阻塞直到地图加载完全
             while (true){
-                if(visible & mapView.isMapLoadFinish()){
+                if( mapView.isMapLoadFinish()){
+                    Log.i("Test","MapLoadFinish");
 
-                    //设置定位的点
-                    locationLayer = new LocationLayer(mapView, new PointF(650, 760));  //起点
-                    locationLayer.setOpenCompass(true);
-                    locationLayer.setCompassIndicatorCircleRotateDegree(60);  //罗盘
-                    locationLayer.setCompassIndicatorArrowRotateDegree(-30);  //方向
-                    mapView.addLayer(locationLayer);
                     //注册传感器
                     sensorManager.registerListener(this, sensorManager.getDefaultSensor
                             (Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
-
 
                     startTimer();  //开始定位
 
@@ -539,7 +339,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     }
 
     /**
-     * 设置预购商品
+     * 设置预购商品的数量
      */
     private void setMapDetail(){
         nums.set(0,Integer.valueOf(0));
@@ -618,124 +418,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
 
     }
 
-    /**
-     * 测试获得指印
-     */
-    private void setButtonListen(){
-        test = false;
-        times = 1;
-        timer = new Timer();
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final List<Integer> rssis1 = new ArrayList<>();
-                final List<Double> dis1 = new ArrayList<>();
-                final List<Integer> rssis2 = new ArrayList<>();
-                final List<Double> dis2 = new ArrayList<>();
-                final List<Integer> rssis3 = new ArrayList<>();
-                final List<Double> dis3 = new ArrayList<>();
 
-
-                mTimerTask = new TimerTask() {
-                    @Override
-                    public void run() {
-
-                        printFingerprint(rssis1,rssis2,rssis3,dis1,dis2,dis3);
-
-
-                        //50的倍数
-                        if(times % 50 == 0){
-                            int rsum1 = 0;
-                            double dsum1 = 0;
-                            int rsum2 = 0;
-                            double dsum2 = 0;
-                            int rsum3 = 0;
-                            double dsum3 = 0;
-                            for(int i = 0; i< rssis1.size();i++){
-                                rsum1 += rssis1.get(i);
-                            }
-                            for(int i = 0; i< dis1.size();i++){
-                                dsum1 += dis1.get(i);
-                            }
-                            Log.i("rssi","1 avg:"+ (rsum1 * 1.0) / (rssis1.size() * 1.0) );
-                            Log.i("dis","1 avg:"+ dsum1 / dis1.size());
-
-
-                            for(int i = 0; i< rssis2.size();i++){
-                                rsum2 += rssis2.get(i);
-                            }
-                            for(int i = 0; i< dis2.size();i++){
-                                dsum2 += dis2.get(i);
-                            }
-                            Log.i("rssi","2 avg:"+ (rsum2 * 1.0) / (rssis2.size() * 1.0));
-                            Log.i("dis","2 avg:"+ dsum2 / dis2.size());
-
-
-                            for(int i = 0; i< rssis3.size();i++){
-                                rsum3 += rssis3.get(i);
-                            }
-                            for(int i = 0; i< dis3.size();i++){
-                                dsum3 += dis3.get(i);
-                            }
-                            Log.i("rssi","3 avg:"+ (rsum3 * 1.0) / (rssis3.size() * 1.0));
-                            Log.i("dis","3 avg:"+ dsum3 / dis3.size());
-
-                            //同时应该要清空List
-                            rssis1.clear();
-                            rssis2.clear();
-                            rssis3.clear();
-                            dis1.clear();
-                            dis2.clear();
-                            dis3.clear();
-                            if(mTimerTask != null) {
-                                mTimerTask.cancel();
-                            }
-                            EventBus.getDefault().post(new MessageEvent("success!"));
-
-
-
-                        }//if == 50
-                        times++;
-                    }
-                };
-
-                timer.schedule(mTimerTask, 0, 500);  //0.5s进行指纹打印
-
-            }
-        });
-    }
-
-    /**
-     * 打印指印
-     */
-    public void printFingerprint(List l1,List l2,List l3,List d1,List d2,List d3){
-        //打印第几次了，预计每个位置打印50次取平均值
-      //  Toast.makeText(mContext,"第" + times +"次打印",Toast.LENGTH_SHORT).show();
-        for(int i = 0; i < 3 ; i++){
-            iBeaconView beacon = beacons.get(i);
-            double distance = distances.get(i);
-            if(beacon.rssi != -1) {
-                // Log.i("DEBUGLOCATION"+times, beacon.uuid + "||" +beacon.rssi + "||" + distance);
-
-                switch (beacon.uuid){
-                    case 1:
-                        l1.add(beacon.rssi);
-                        d1.add(distance);
-                        break;
-                    case 2:
-                        l2.add(beacon.rssi);
-                        d2.add(distance);
-                        break;
-                    case 3:
-                        l3.add(beacon.rssi);
-                        d3.add(distance);
-                        break;
-                }
-
-            }
-
-        }//for
-    }
 
     /**
      * 路径规划函数

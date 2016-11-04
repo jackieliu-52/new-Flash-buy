@@ -11,7 +11,7 @@ public class LineItem implements Parcelable {
     private String goods_ID;  //商品ID
     private String order_ID; //订单ID
     private int number; //商品数量
-    private double unitPrice; //商品总价
+    private double unit_price; //商品总价
     //新增
     public boolean isBulk = false; //是否是散装商品
 
@@ -22,7 +22,7 @@ public class LineItem implements Parcelable {
     public LineItem(Item item) {
         isBulk = false;
         this.id = 233;
-        number = 0;
+        number = 1;
         goods_ID = item.getIid();
         this.item = item;
     }
@@ -104,15 +104,15 @@ public class LineItem implements Parcelable {
      */
     public double getUnitPrice() {
         if(isBulk){
-            unitPrice = ((BulkItem)item).getSum();
+            unit_price = ((BulkItem)item).getSum();
         }else {
-            unitPrice = item.realPrice() * number;
+            unit_price = item.realPrice() * number;
         }
-        return unitPrice;
+        return unit_price;
     }
 
     public void setUnitPrice(double unitPrice) {
-        this.unitPrice = unitPrice;
+        this.unit_price = unitPrice;
     }
 
 
@@ -127,7 +127,7 @@ public class LineItem implements Parcelable {
         dest.writeString(this.goods_ID);
         dest.writeString(this.order_ID);
         dest.writeInt(this.number);
-        dest.writeDouble(this.unitPrice);
+        dest.writeDouble(this.unit_price);
         dest.writeByte(this.isBulk ? (byte) 1 : (byte) 0);
         dest.writeInt(this.id);
     }
@@ -137,7 +137,7 @@ public class LineItem implements Parcelable {
         this.goods_ID = in.readString();
         this.order_ID = in.readString();
         this.number = in.readInt();
-        this.unitPrice = in.readDouble();
+        this.unit_price = in.readDouble();
         this.isBulk = in.readByte() != 0;
         this.id = in.readInt();
     }

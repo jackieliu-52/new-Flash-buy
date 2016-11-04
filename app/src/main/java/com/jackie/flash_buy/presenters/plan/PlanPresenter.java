@@ -54,26 +54,68 @@ public class PlanPresenter implements PlanContract.Presenter {
         mTypes = new ArrayList<>();
         mLineItems = new ArrayList<>();
 
-        mTypes.add(new TwoTuple<String, Integer>("蔬菜", 0));
-        mTypes.add(new TwoTuple<String, Integer>("零食", 0));
 
-        mLineItems.add(new LineItem(new Item("苹果", "蔬菜", "1", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果1", "蔬菜", "2", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果2", "蔬菜", "3", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果3", "蔬菜", "4", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果4", "蔬菜", "5", "", "垃圾公司", 3.22, "没有规格"),1));
-        mLineItems.add(new LineItem(new Item("苹果5", "蔬菜", "6", "", "垃圾公司", 3.22, "没有规格"),1));
+        mTypes.add(new TwoTuple<>("零食区域", 0));
+        mTypes.add(new TwoTuple<>("酒水饮料", 0));
+        mTypes.add(new TwoTuple<>("电器家居", 0));
 
-        mLineItems.add(new LineItem(new Item("巧克力", "零食", "11", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果1", "零食", "12", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果2", "零食", "13", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果3", "零食", "14", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果4", "零食", "15", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果5", "零食", "16", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果6", "零食", "17", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果7", "零食", "18", "", "垃圾公司", 2.33, "没有规格"),2));
-        mLineItems.add(new LineItem(new Item("糖果8", "零食", "19", "", "垃圾公司", 2.33, "没有规格"),2));
 
+
+        mLineItems.add(new LineItem(new Item("张君雅小妹妹串烧休闲丸子", "零食区域", "324", "http://obsyvbwp3.bkt.clouddn.com/zhangjunya.JPG", "张君雅公司", 6.3, "60g"),3));
+        mLineItems.add(new LineItem(new Item("三只松鼠夏威夷果","零食区域","0202","http://obsyvbwp3.bkt.clouddn.com/134.JPG","夏威夷公司",9.00,"一瓶"),3));
+        mLineItems.add(new LineItem(new Item("乐事无限薯片三连罐","零食区域","0303","http://obsyvbwp3.bkt.clouddn.com/135.JPG","乐事薯片",4.00,"DT3200"),3));
+        mLineItems.add(new LineItem(new Item("Aji泰氏风味榴莲饼","零食区域","0303","http://obsyvbwp3.bkt.clouddn.com/136.JPG","心相印",4.00,"DT3200"),3));
+
+
+        mLineItems.add(new LineItem(new Item("怡宝矿泉水", "酒水饮料", "1101", "http://obsyvbwp3.bkt.clouddn.com/yibao.jpg", "怡宝有限公司", 2, "555ml"),1));
+        mLineItems.add(new LineItem(new Item("安慕希酸奶", "酒水饮料", "133", "http://obsyvbwp3.bkt.clouddn.com/133.jpg", "伊利公司", 3.22, "205g"),1));
+        Item test3 = new Item();
+        test3.setName("养乐多");
+        test3.setPrice(11);
+        test3.setImage("http://obsyvbwp3.bkt.clouddn.com/yangleduo.jpg");
+        test3.setIid("121");
+        test3.setPid("酒水饮料");
+        test3.setSource("中国");
+        test3.setSize("80g");
+        mLineItems.add(new LineItem(test3,1));
+
+
+
+
+
+        Item item26 = new Item();
+        item26.setName("小熊SNJ-A10K5酸奶机");
+        item26.setPrice(149);
+        item26.setImage("http://obsyvbwp3.bkt.clouddn.com/161.JPG");
+        item26.setIid("1610");
+        item26.setPid("电器家居");
+        item26.setSource("中国");
+        item26.setSize("8分杯内胆");
+
+        mLineItems.add(new LineItem(item26,4));
+
+
+        Item item27 = new Item();
+        item27.setName("九阳JYY-50YL1智能电压力锅");
+        item27.setPrice(199);
+        item27.setImage("http://obsyvbwp3.bkt.clouddn.com/162.JPG");
+        item27.setIid("1620");
+        item27.setPid("电器家居");
+        item27.setSource("中国");
+        item27.setSize("5L");
+
+        mLineItems.add(new LineItem(item27,4));
+
+        Item item28 = new Item();
+        item28.setName("美的MJ-BL25B3料理机果汁机电动搅拌机");
+        item28.setPrice(199);
+        item28.setImage("http://obsyvbwp3.bkt.clouddn.com/163.JPG");
+        item28.setIid("1630");
+        item28.setPid("电器家居");
+        item28.setSource("中国");
+        item28.setSize("2.7kg");
+
+        mLineItems.add(new LineItem(item28,4));
     }
 
     @Override

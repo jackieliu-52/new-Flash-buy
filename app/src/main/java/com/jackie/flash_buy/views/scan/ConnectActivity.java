@@ -88,7 +88,7 @@ public class ConnectActivity extends AppCompatActivity {
             if(success){
                 rippleBackground.stopRippleAnimation(); //结束动画
                 EventBus.getDefault().post(new MessageEvent("绑定成功！"));
-                MainActivity.status = 1; //绑定成功
+
                 finish();
             }else{
                 rippleBackground.stopRippleAnimation(); //结束动画

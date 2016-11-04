@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="88dp">
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivMarketLogo"
             android:src="@drawable/ic_market_logo"
             android:layout_width="88dp"
@@ -50,7 +50,7 @@
         </LinearLayout>
     </RelativeLayout>
     <LinearLayout
-        android:paddingLeft="88dp"
+        android:paddingLeft="103dp"
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">

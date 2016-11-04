@@ -22,8 +22,16 @@
             android:layout_marginTop="30dp"
             android:background="@mipmap/ic_account_circle_white_48dp"
             android:layout_gravity="center_horizontal"/>
-
+        <TextView
+            android:id="@+id/logIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="登录"
+            />
         <LinearLayout
+            android:id="@+id/llName"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -43,6 +51,7 @@
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:id="@+id/sex"
+
                 android:layout_gravity="center_vertical"
                 android:background="@mipmap/ic_sex_girl"/>
         </LinearLayout>
@@ -51,6 +60,7 @@
 
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/llDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -158,7 +168,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_popup_attachment_rename"
-        app:backgroundTint="@color/pink"
+        app:backgroundTint="@color/colorAccent"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"/>
 

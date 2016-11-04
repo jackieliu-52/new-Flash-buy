@@ -2,6 +2,7 @@ package com.jackie.flash_buy.views.home;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -9,12 +10,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -44,6 +47,7 @@ import com.jackie.flash_buy.utils.Util;
 import com.jackie.flash_buy.views.TestFragment;
 import com.jackie.flash_buy.views.buy.BuyFragment;
 import com.jackie.flash_buy.views.buy.Fragment_cart;
+import com.jackie.flash_buy.views.buy.LocationService;
 import com.jackie.flash_buy.views.goods.GoodsActivity;
 import com.jackie.flash_buy.views.order.OrderActivity;
 import com.jackie.flash_buy.views.plan.PlanFragment;
@@ -68,9 +72,10 @@ import java.util.List;
 import me.shaohui.bottomdialog.BottomDialog;
 
 public class MainActivity extends BaseActivity {
-    public static int status ;  //状态，0-未绑定，1-绑定成功，2-购买结束
+    public static int status = 0 ;  //状态，0-未开始购物，1-购物中（需要定位），2-购买结束
+    public static boolean isLogin = false;  //是否登录
     public static List<TwoTuple<Boolean,LineItem>> PlanBuy  = new ArrayList<>();  //计划购买的商品，已选择的商品
-    public static boolean TESTMODE = true;  //测试模式
+    public static boolean TESTMODE = false;  //测试模式
     public static List<LineItem> realPlanBuy  = new ArrayList<>();  //计划购买的商品，已选择的商品
 
     public static Market market; //当前购物的超市
@@ -91,30 +96,53 @@ public class MainActivity extends BaseActivity {
     private Fragment_account mAccountFragment;
 
     private CoordinatorLayout clContent;
-    private FloatingActionButtonPlus mActionButtonPlus;
+    public FloatingActionButtonPlus mActionButtonPlus;
     //购物车有关
     private ListView lv_cart;
     ItemAdapter lvAdapter;
+
+    static {
+        //访问数据库看看是不是登录成功了
+
+    }
+
+    public User getUser(){
+        SharedPreferences sharedPreferences = getSharedPreferences("jackieLiu", Context.MODE_PRIVATE);
+        String id = sharedPreferences.getString("id", "");
+        String name = sharedPreferences.getString("name", "");
+        String mail = sharedPreferences.getString("mail", "");
+        return  new User(mail,id,name);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        LocationService.startLocation(this);  //开始定位！
+
+
+
+
+        if(!isLogin){
+            user = getUser();  //如果没有登录，就从SP里面去获得用户的资料
+            if(user.getId().equals("")){
+                //那么还是没有登录成功
+            }else {
+                //登录成功
+                isLogin = true;
+            }
+        }
         EventBus.getDefault().register(this);
         setFab();
 
         mContext = this;
         clContent = (CoordinatorLayout) findViewById(R.id.clt);
         initUI();
+
+        //测试模式
         if(TESTMODE)
             testMode();
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
     }
 
     private void setFab() {
@@ -196,6 +224,11 @@ public class MainActivity extends BaseActivity {
                             .setTag("BottomDialog")     // 设置DialogFragment的tag
                             .show();
                 }
+                if(position == 3){
+                    TESTMODE = !TESTMODE; //取反
+                    testMode();  //获取测试数据
+                    EventBus.getDefault().post(new MessageEvent("测试模式：" + TESTMODE));
+                }
                 //EventBus.getDefault().post(new MessageEvent("Click btn" + position));
             }
         });
@@ -245,7 +278,7 @@ public class MainActivity extends BaseActivity {
     }
     private void initUI() {
         mViewPager = (NoScrollViewPager) findViewById(R.id.vp_main);
-        mViewPager.setOffscreenPageLimit(0);  //取消预加载
+        mViewPager.setOffscreenPageLimit(3);  //全部都预加载
         mViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
 
             private String[] mTitles = new String[]{"超市", "购物车", "订单","我的"};
@@ -292,16 +325,27 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void snackBar(MessageEvent messageEvent){
-        Snackbar.make(clContent, messageEvent.message, Snackbar.LENGTH_SHORT).show();
-//        new SnackBar.Builder(MainActivity.this)
-//                .withMessage(messageEvent.message)
-//                .withStyle(SnackBar.Style.ALERT)
-//                .withDuration((short)2000)
-//                .show();
+        if(messageEvent.item != null){
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    messageEvent.message, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.BOTTOM, 0, 80);
+            toast.show();
+            return;
+        }
+        if(messageEvent.message.equals("定位失败！请检查蓝牙是否打开")){
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    messageEvent.message, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP, 0, 20);
+            toast.show();
+        }else {
+            Snackbar.make(clContent, messageEvent.message, Snackbar.LENGTH_SHORT).show();
+        }
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void pageChanged(PageEvent event){
         mViewPager.setCurrentItem(mViewPager.getCurrentItem() + event.off, true);
+        status = 1; //需要定位了
         EventBus.getDefault().post(new PlanBuyEvent("initMap"));
     }
 
@@ -397,9 +441,6 @@ public class MainActivity extends BaseActivity {
     private void testMode(){
         cart = new ArrayList<>();
 
-
-
-
         Item item2 = new Item();
         item2.setName("安慕希酸奶");
         item2.setPrice(59.4);
@@ -425,44 +466,6 @@ public class MainActivity extends BaseActivity {
         cart.add(lineItem3);
 
 
-
-//        //在主线程中去更新UI
-//        this.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                lv_cart.setAdapter(adapter);
-//                double total_price = 0;
-//                for(LineItem lineItem:cart){
-//                    total_price += lineItem.getUnitPrice();
-//                }
-//                tv_total_cost.setText(total_price + "元");
-//            }
-//        });
-
-//        //自己定义一些历史订单
-//        EventBus.getDefault().post(new ListEvent("init"));
-//        //自定义散装商品
-//        BulkItem bulkitem = new BulkItem();
-//        bulkitem.setName("猕猴桃");
-//        bulkitem.setImage("http://obsyvbwp3.bkt.clouddn.com/mihoutao.jpg");
-//        bulkitem.setPrice(15);
-//        bulkitem.setWeight(0.255);
-//        bulkitem.setAttr1("闭光存储");
-//        //5天以前生产
-//        bulkitem.setProduceTime(Util.getBefoceTime(5));
-//        //获得到期时间
-//        bulkitem.jisuan();
-//
-//        BulkItem bulkitem1 = new BulkItem();
-//        bulkitem1.setName("花生");
-//        bulkitem1.setImage("http://img2.imgtn.bdimg.com/it/u=1379469998,3665416882&fm=206&gp=0.jpg");
-//        bulkitem1.setPrice(5.00);
-//        bulkitem1.setWeight(2.33);
-//        bulkitem1.setAttr1("冷藏");
-//        bulkitem1.setShelfTime(10);
-//        //19天前生产
-//        bulkitem1.setProduceTime(Util.getBefoceTime(19));
-//        bulkitem1.jisuan();
     }
 
     /**
@@ -480,7 +483,7 @@ public class MainActivity extends BaseActivity {
             connection.connect();
             //网页返回的状态码
             int code = connection.getResponseCode();
-            Log.i("购物车查询","结果码" + code);
+            //Log.i("购物车查询","结果码" + code);
             if(code == 200) {
                 InputStream is = connection.getInputStream();
                 json = Util.readStream(is);
@@ -489,32 +492,37 @@ public class MainActivity extends BaseActivity {
                 //将json转换为一个Order
 
                 Order order = gson.fromJson(json,Order.class);
+                if(order == null){
 
-                //将剩下的加入购物车
-                cart.addAll(order.getLineItems());
+                }else {
+                    //将剩下的加入购物车
+                    cart.addAll(order.getLineItems());
 
-                double total_price = 0;
-                //如果说这个预购商品已经放进去了，那么就移除它
-                for(LineItem lineItem:cart){
-                    for(LineItem tempItem:realPlanBuy){
-                        if(lineItem.getItem().getName().equals(tempItem.getItem().getName())){
-                            realPlanBuy.remove(tempItem); //移除预购商品
+                    double total_price = 0;
+                    //如果说这个预购商品已经放进去了，那么就移除它
+                    for (LineItem lineItem : cart) {
+                        for (LineItem tempItem : realPlanBuy) {
+                            if (lineItem.getItem().getName().equals(tempItem.getItem().getName())) {
+                                realPlanBuy.remove(tempItem); //移除预购商品
+                            }
                         }
+                        total_price += lineItem.getUnitPrice();
                     }
-                    total_price += lineItem.getUnitPrice();
+
+                    if (lvAdapter != null) {
+                        lvAdapter.notifyDataSetChanged(); //通知更新
+                    }
+                    EventBus.getDefault().post(new MessageEvent("刷新购物车成功",new Item()));
                 }
-
-
-                lvAdapter.notifyDataSetChanged(); //通知更新
             }
 
             else {
-                EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
+                // EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
             }
 
         }
         catch (Exception e) {
-            EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
+            // EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
             e.printStackTrace();
         }
 

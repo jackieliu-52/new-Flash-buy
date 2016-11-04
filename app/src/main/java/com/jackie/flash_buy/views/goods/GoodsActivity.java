@@ -2,6 +2,7 @@ package com.jackie.flash_buy.views.goods;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -14,6 +15,7 @@ import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.TwoTuple;
 import com.jackie.flash_buy.views.home.MainActivity;
+import com.jackie.flash_buy.views.sales.CommentActivity;
 import com.jackie.flash_buy.views.scan.ScanActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,6 +53,38 @@ public class GoodsActivity extends BaseActivity {
         this.ivstar = (ImageView) findViewById(R.id.iv_star);
         this.tvname = (TextView) findViewById(R.id.tv_name);
         this.sdgood = (SimpleDraweeView) findViewById(R.id.sd_good);
+
+        initUI();
+    }
+
+    /**
+     * 初始化UI的各种数据
+     */
+    private void initUI() {
+        //刷新UI
+        tvname.setText(item.getName());
+        tvcompany.setText(item.getCompany());
+        tvsize.setText(item.getSize());
+        tvsource.setText(item.getSource());
+        itemadd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickAdd();
+            }
+        });
+
+        itemcomment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickComment();
+            }
+        });
+        itemscan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickScan();
+            }
+        });
     }
 
 
@@ -64,7 +98,7 @@ public class GoodsActivity extends BaseActivity {
     }
 
     public void clickComment(){
-        //startActivity(new Intent(this, CommentActivity.class));
+        startActivity(new Intent(this, CommentActivity.class));
     }
 
 

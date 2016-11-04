@@ -28,6 +28,7 @@ import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
+import com.jackie.flash_buy.ui.Card.GoodsCardProvider;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.views.home.MainActivity;
@@ -79,7 +80,7 @@ public class Fragment_cart extends BaseFragment {
 
         initRefresh();
 
-
+        startTimer(); //开始
 
         //如果不是第一次进入，那么保存用户的习惯，比如说商品排列方式
         if(first != 1){
@@ -125,10 +126,13 @@ public class Fragment_cart extends BaseFragment {
             } else{
                 num = lineItem.getNum() + "";
             }
+            if(item.getImage().equals("")){
+                //设置默认展位图片
+                item.setImage("http://obsyvbwp3.bkt.clouddn.com/good.png");
+            }
             final CardProvider provider = new Card.Builder(mContext)
                     .setTag(item)
-                    .withProvider(new CardProvider<>())
-                    .setLayout(R.layout.material_basic_image_buttons_card_layout)
+                    .withProvider(new GoodsCardProvider())
                     .setTitle(item.getName())
                     .setTitleGravity(Gravity.START)
                     .setDescription(descri)
@@ -168,11 +172,11 @@ public class Fragment_cart extends BaseFragment {
             @Override
             public void onRefresh() {
                 // TODO Auto-generated method stub
-                EventBus.getDefault().post(new MessageEvent("刷新购物车"));
+                //EventBus.getDefault().post(new MessageEvent("刷新购物车"));
                 if(!MainActivity.TESTMODE) {
                     //获取信息，然后再刷新UI
-                    EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart));
                 }
+                startTimer(); //开始
 
                 init(); //再填充数据
 
@@ -216,21 +220,16 @@ public class Fragment_cart extends BaseFragment {
                 if(visible){
                     if(!MainActivity.TESTMODE) {
                         //获取信息，然后再刷新UI
-                        EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart));
 //                        EventBus.getDefault().post(new InternetEvent(InternetUtil.bulkUrl,Constant.REQUEST_Bulk));
                     }
-                    //先清空所有
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mListView.getAdapter().clearAll();
-                        }
-                    });
+                    Log.i("uirefresh","uiRefresh");
                     init();
+                    startTimer(); //开始
+
                 }
             }
         };
-        timer.schedule(timerTask,5000); //5s刷新一次
+        timer.schedule(timerTask,3000); //3s刷新一次
     }
 
     private void stopTimer() {
