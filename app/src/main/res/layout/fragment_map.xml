@@ -3,18 +3,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+
     <com.onlylemi.mapview.library.MapView
         android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <ImageButton
+        android:id="@+id/ivChanggou"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:alpha="100"
+        android:src ="@drawable/ic_basket_64px"
+        />
     <Button
         android:id="@+id/bt_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="#00000000"
         android:text="打印"
+        android:src ="@drawable/ic_shop_cart"
         android:textColor="@color/pink"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
-        android:visibility="invisible"/>
+        android:visibility="gone"/>
 
 </RelativeLayout>

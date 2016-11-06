@@ -132,13 +132,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         View root = inflater.inflate(R.layout.plan_frag, container, false);
         //底部布局
         bottomSheetLayout = (BottomSheetLayout) root.findViewById(R.id.bottomSheetLayout);
-        total_cost1 = (TextView) root.findViewById(R.id.tv_total_cost);
-        root.findViewById(R.id.iv_checkout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialog();
-            }
-        });
+        total_cost1 = (TextView) root.findViewById(R.id.tv_total_cost1);
 
         //上面的布局
         this.rvType = (CommonRecycleView) root.findViewById(R.id.rvType);
@@ -260,10 +254,12 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             mCommonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
         }
 
-        if(total_cost != null){
-            total_price = mPresenter.unitPrice();
-            total_cost.setText(total_price + "元");
+        total_price = mPresenter.unitPrice();
+        if(total_cost1 != null){
             total_cost1.setText(total_price + "元");
+        }
+        if(total_cost != null){
+            total_cost.setText(total_price + "元");
         }
     }
 
@@ -276,10 +272,12 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             mCommonRecyclerAdapter.notifyDataSetChanged(); //刷新UI
         }
 
-        if(total_cost != null){
-            total_price = mPresenter.unitPrice();
-            total_cost.setText(total_price + "元");
+        total_price = mPresenter.unitPrice();
+        if(total_cost1 != null){
             total_cost1.setText(total_price + "元");
+        }
+        if(total_cost != null){
+            total_cost.setText(total_price + "元");
         }
     }
 
@@ -299,7 +297,8 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         });
         total_cost = (TextView) view.findViewById(R.id.tv_total_cost);
         total_price = mPresenter.unitPrice();
-        total_cost.setText(total_price + "");
+        total_cost.setText(total_price + "元");
+        total_cost1.setText(total_price + "元");
         return view;
     }
 
@@ -356,7 +355,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
 
                 Item item = o.second.getItem();
                 holder.setText(R.id.tv_item_name, item.getName());
-                holder.setText(R.id.tv_item_date, item.getPid());   //区域,考虑使用EPC字段
+                holder.setText(R.id.tv_item_date, item.getPid());
                 if(!item.getImage().equals("")){
                     //加载图片
                     Picasso.with(mContext)

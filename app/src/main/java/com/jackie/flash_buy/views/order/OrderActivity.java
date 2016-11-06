@@ -2,6 +2,7 @@ package com.jackie.flash_buy.views.order;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +40,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.saeid.fabloading.LoadingView;
 
 /**
  * 订单的Activity
@@ -54,8 +56,8 @@ public class OrderActivity extends AppCompatActivity {
     MaterialListView mOrderList;
 
     private Toolbar toolbar;
-    private TextView checkout;
 
+    LoadingView mLoadingView;
     private Context mContext;
     private Order mOrder;
     private MaterialListAdapter mListAdapter;
@@ -78,16 +80,65 @@ public class OrderActivity extends AppCompatActivity {
             mOrder = getIntent().getParcelableExtra("order");
         }
         init();
-        checkout = (TextView) findViewById(R.id.tvCheckOut);
-        checkout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EventBus.getDefault().post(new MessageEvent("付款！"));
-                finish();
-                //通知服务器
+
+        mLoadingView = (LoadingView) findViewById(R.id.loading_view);
+        mLoadingView.addAnimation(Color.parseColor("#5E88FC"),R.drawable.ic_checkout,LoadingView.FROM_LEFT);
+        mLoadingView.addAnimation(Color.parseColor("#3FB837"),R.drawable.ic_check_right,LoadingView.FROM_LEFT);
+        //also you can add listener for getting callback (optional)
+        mLoadingView.addListener(new LoadingView.LoadingListener() {
+            @Override public void onAnimationStart(int currentItemPosition) {
+            }
+
+            @Override public void onAnimationRepeat(int nextItemPosition) {
+            }
+
+            @Override public void onAnimationEnd(int nextItemPosition) {
+                showMoneyDialog();
             }
         });
 
+        mLoadingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCheckDialog();
+            }
+        });
+
+    }
+
+
+    private void showCheckDialog(){
+        new MaterialDialog.Builder(this)
+                .iconRes(R.mipmap.ic_launcher)
+                .limitIconToDefaultSize() // limits the displayed icon size to 48dp
+                .title("是否支付？")
+                .content("您将花费："+mOrder.getPayment() + "元")
+                .positiveText("支付")
+                .negativeText("取消")
+                .onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        if(which == DialogAction.POSITIVE){
+                            mLoadingView.startAnimation();  //开始动画
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private void showMoneyDialog(){
+        new MaterialDialog.Builder(this)
+                .title("支付成功")
+                .content("共花费："+mOrder.getPayment() + "元")
+                .positiveText("好的")
+                .onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        finish();
+                        //通知服务器
+                    }
+                })
+                .show();
     }
 
     @Override

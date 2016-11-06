@@ -57,7 +57,10 @@ public class PlanPresenter implements PlanContract.Presenter {
 
         mTypes.add(new TwoTuple<>("零食区域", 0));
         mTypes.add(new TwoTuple<>("酒水饮料", 0));
+
+        mTypes.add(new TwoTuple<>("生鲜水果", 0));
         mTypes.add(new TwoTuple<>("电器家居", 0));
+
 
 
 
@@ -81,7 +84,58 @@ public class PlanPresenter implements PlanContract.Presenter {
 
 
 
+        Item item19 = new Item();
+        item19.setName("河北皇冠梨");
+        item19.setPrice(29);
+        item19.setImage("http://obsyvbwp3.bkt.clouddn.com/151.JPG");
+        item19.setIid("1510");
+        item19.setPid("生鲜水果");
+        item19.setSource("中国");
+        item19.setSize("9*200g");
 
+
+
+        Item item20 = new Item();
+        item20.setName("泰国椰青");
+        item20.setPrice(32);
+        item20.setImage("http://obsyvbwp3.bkt.clouddn.com/152.JPG");
+        item20.setIid("1520");
+        item20.setPid("生鲜水果");
+        item20.setSource("中国");
+        item20.setSize("1.4kg");
+
+        Item item21 = new Item();
+        item21.setName("海南西周蜜瓜");
+        item21.setPrice(25);
+        item21.setImage("http://obsyvbwp3.bkt.clouddn.com/153.JPG");
+        item21.setIid("1530");
+        item21.setPid("生鲜水果");
+        item21.setSource("中国");
+        item21.setSize("1.5kg");
+
+        Item item22 = new Item();
+        item22.setName("海南三亚苹果芒");
+        item22.setPrice(29.9);
+        item22.setImage("http://obsyvbwp3.bkt.clouddn.com/155.JPG");
+        item22.setIid("1550");
+        item22.setPid("生鲜水果");
+        item22.setSource("中国");
+        item22.setSize("1kg");
+
+        Item item23 = new Item();
+        item23.setName("智利牛油果");
+        item23.setPrice(118);
+        item23.setImage("http://obsyvbwp3.bkt.clouddn.com/154.JPG");
+        item23.setIid("1540");
+        item23.setPid("生鲜水果");
+        item23.setSource("中国");
+        item23.setSize("1kg");
+
+        mLineItems.add(new LineItem(item19,5));
+        mLineItems.add(new LineItem(item20,5));
+        mLineItems.add(new LineItem(item21,5));
+        mLineItems.add(new LineItem(item22,5));
+        mLineItems.add(new LineItem(item23,5));
 
         Item item26 = new Item();
         item26.setName("小熊SNJ-A10K5酸奶机");
@@ -116,6 +170,10 @@ public class PlanPresenter implements PlanContract.Presenter {
         item28.setSize("2.7kg");
 
         mLineItems.add(new LineItem(item28,4));
+
+
+
+
     }
 
     @Override

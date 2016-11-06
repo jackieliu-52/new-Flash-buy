@@ -1,5 +1,7 @@
 package com.jackie.flash_buy.views.scan;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,8 +10,10 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 import com.google.zxing.Result;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.bus.InternetEvent;
+import com.jackie.flash_buy.ui.RevealBackgroundView;
 import com.jackie.flash_buy.ui.ScanImageView;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.utils.zxing.ScanListener;
@@ -28,11 +33,14 @@ import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import immortalz.me.library.TransitionsHeleper;
+import immortalz.me.library.bean.InfoBean;
+import immortalz.me.library.method.ColorShowMethod;
 
 /**
  * Created by Jack on 2016/8/12.
  */
-public class ScanActivity extends Activity implements ScanListener, View.OnClickListener{
+public class ScanActivity extends Activity implements ScanListener, View.OnClickListener, RevealBackgroundView.OnStateChangeListener{
     SurfaceView scanPreview = null;
     View scanContainer;
     View scanCropView;
@@ -44,6 +52,9 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     final int PHOTOREQUESTCODE = 1111;
 
     private int scanMode;//扫描模型（条形，二维码，全部）
+    public static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
+
+    RevealBackgroundView vRevealBackground;
 
     @BindView(R.id.authorize_return)
     ImageView authorize_return;
@@ -58,18 +69,44 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @BindView(R.id.scan_image)
     ScanImageView scan_image;
 
-
+    public static void startCameraFromLocation(int[] startingLocation, Activity startingActivity) {
+        Intent intent = new Intent(startingActivity, ScanActivity.class);
+        intent.putExtra(ARG_REVEAL_START_LOCATION, startingLocation);
+        startingActivity.startActivity(intent);
+    }
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan);
         ButterKnife.bind(this);
-        scanMode = getIntent().getIntExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
+        scanMode = Constant.REQUEST_SCAN_MODE_ALL_MODE;
         initView();
+
+        //动画
+        setupRevealBackground(icicle);
+    }
+
+    private void setupRevealBackground(Bundle savedInstanceState) {
+        vRevealBackground.setFillPaintColor(0xFF16181a);
+        vRevealBackground.setOnStateChangeListener(this);
+        if (savedInstanceState == null) {
+            final int[] startingLocation = getIntent().getIntArrayExtra(ARG_REVEAL_START_LOCATION);
+            vRevealBackground.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    vRevealBackground.getViewTreeObserver().removeOnPreDrawListener(this);
+                    vRevealBackground.startFromLocation(startingLocation);
+                    return true;
+                }
+            });
+        } else {
+            vRevealBackground.setToFinishedFrame();
+        }
     }
 
     void initView() {
@@ -93,6 +130,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         authorize_return.setOnClickListener(this);
         //构造出扫描管理器
         scanManager = new ScanManager(this, scanPreview, scanContainer, scanCropView, scanLine, scanMode,this);
+
+        vRevealBackground = (RevealBackgroundView) findViewById(R.id.vRevealBackground);
     }
 
     @Override
@@ -177,6 +216,18 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
             }
         }
     }
+
+
+    @Override
+    public void onStateChange(int state) {
+        if (RevealBackgroundView.STATE_FINISHED == state) {
+            scanContainer.setVisibility(View.VISIBLE);
+
+        } else {
+            scanContainer.setVisibility(View.INVISIBLE);
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.i("ScanActivity","onSaveInstanceState");

@@ -81,24 +81,20 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="#E6E8FA" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <com.dexafree.materialList.view.MaterialListView
         android:layout_width="fill_parent"
-        android:layout_height="350dp"
+        android:layout_height="wrap_content"
         android:id="@+id/order_list"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#E6E8FA" />
-    <TextView
-        android:padding="10dp"
-        android:gravity="center_horizontal"
-        android:textColor="#FFF"
-        android:text="付款"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:background="@color/colorAccent"
-        android:id="@+id/tvCheckOut"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"/>
 
+    <io.saeid.fabloading.LoadingView
+        android:id="@+id/loading_view"
+        android:layout_width="wrap_content"
+        android:layout_gravity="right|bottom"
+
+        android:layout_height="wrap_content"
+        />
+    </FrameLayout>
 </LinearLayout>

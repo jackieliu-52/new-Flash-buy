@@ -36,4 +36,13 @@
             android:layout_alignParentRight="true"
             android:src="@drawable/ic_shopping_basket"/>
     </RelativeLayout>
+    <TextView
+        android:visibility="invisible"
+        android:paddingLeft="60dp"
+        android:text="您的购物车还没有商品，再逛逛吧"
+        android:id="@+id/tips"
+        android:paddingTop="55dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </FrameLayout>

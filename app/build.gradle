@@ -72,5 +72,13 @@ dependencies {
     compile 'me.shaohui:bottomdialog:1.1.9'
     //dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.0.1'
+    //动画
+    compile 'me.immortalz:transitionhelper:1.0.4'
+    //search
+    compile 'com.github.arimorty:floatingsearchview:2.0.3'
+    //floatingView
+    compile 'com.github.recruit-lifestyle:FloatingView:2.0'
+    //loading
+    compile 'io.saeid:fab-loading:1.0.0'
     compile project(':map')
 }

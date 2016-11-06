@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <com.jackie.flash_buy.ui.RevealBackgroundView
+        android:id="@+id/vRevealBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+<RelativeLayout
     android:id="@+id/capture_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -19,7 +26,7 @@
             android:id="@+id/title_bar"
             android:layout_width="fill_parent"
             android:layout_height="45dip"
-            android:background="@android:color/white" >
+            android:background="@color/colorPrimary" >
 
             <ImageView
                 android:id="@+id/authorize_return"
@@ -39,8 +46,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:ellipsize="middle"
+                android:textColor="#fff"
                 android:singleLine="true"
-                android:text="二维码扫描"
+                android:text="扫描"
                 android:textSize="18sp" />
         </RelativeLayout>
         <TextView
@@ -154,3 +162,4 @@
     </RelativeLayout>
 
 </RelativeLayout>
+</FrameLayout>

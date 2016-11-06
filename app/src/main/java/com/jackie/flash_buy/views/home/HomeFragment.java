@@ -1,5 +1,6 @@
 package com.jackie.flash_buy.views.home;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.arlib.floatingsearchview.FloatingSearchView;
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.adapter.PlanTopAdapter;
@@ -44,6 +46,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import immortalz.me.library.TransitionsHeleper;
 
 /**
  * Created by Jack on 2016/11/1.
@@ -60,7 +63,7 @@ public class HomeFragment extends BaseFragment {
     String[] images;
 
     List<TwoTuple<String,String>> tops;
-
+    FloatingSearchView mSearchView;
 
     List<Item> mItems;
     List<Item> mItems1;
@@ -87,6 +90,18 @@ public class HomeFragment extends BaseFragment {
         this.homeendrv = (CommonRecycleView) root.findViewById(R.id.home_end_rv);
         this.hometoprv = (RecyclerView) root.findViewById(R.id.home_top_rv);
         this.banner = (Banner) root.findViewById(R.id.banner);
+        this.mSearchView = (FloatingSearchView) root.findViewById(R.id.floating_search_view);
+        mSearchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
+            @Override
+            public void onSearchTextChanged(String oldQuery, final String newQuery) {
+
+                //get suggestions based on newQuery
+
+                //pass them on to the search view
+//                mSearchView.swapSuggestions(newSuggestions);
+            }
+        });
+
         test();
         setupbanner();
         setTop();
@@ -138,7 +153,7 @@ public class HomeFragment extends BaseFragment {
 
     private void setBottom() {
         final List<Market> markets = new ArrayList<>();
-        markets.add(new Market());
+        markets.add(new Market("Flash-Buy","智能超市","http://obsyvbwp3.bkt.clouddn.com/ic_launcher.png","活动一：","",0));
         markets.add(new Market("家乐福","中国最大的连锁超市","http://obsyvbwp3.bkt.clouddn.com/carrefour.jpg","活动一：水产7折优惠","活动二：满200送100购物券",1000));
         markets.add(new Market("沃尔玛","世界最大的连锁超市","http://obsyvbwp3.bkt.clouddn.com/walmart.jpg","活动一：","活动二：满200送100购物券",500));
         homeendrv.setAdapter(new CommonRecyclerAdapter<Market>(mContext,R.layout.rv_market_item,markets) {
@@ -164,13 +179,10 @@ public class HomeFragment extends BaseFragment {
                 new RecyclerItemClickListener(mContext, hometoprv ,new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Market market = markets.get(position);
-                        //进入PlanActivity
-                        Intent intent = new Intent(mContext, PlanActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("market",market);
-                        intent.putExtras(bundle);
-                        startActivity(intent);
+                        PlanActivity.sMarkt = markets.get(position);
+                        TransitionsHeleper.startAcitivty((Activity) mContext, PlanActivity.class,
+                                view.findViewById(R.id.ivMarketLogo),
+                                PlanActivity.sMarkt.getLogo());
                     }
 
                     @Override

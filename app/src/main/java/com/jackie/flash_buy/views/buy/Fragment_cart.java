@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -25,6 +26,7 @@ import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
+import com.jackie.flash_buy.bus.UiEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
@@ -35,13 +37,15 @@ import com.jackie.flash_buy.views.home.MainActivity;
 import com.squareup.picasso.RequestCreator;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 
 /**
- * 实时账单
+ * 实时账单,需要把TimerTask换成handler，因为只要有一次一场，Timer就会挂掉
  */
 public class Fragment_cart extends BaseFragment {
     private  final String TAG = "Fragment_cart";
@@ -56,14 +60,27 @@ public class Fragment_cart extends BaseFragment {
     SwipeRefreshLayout sr_swipeMaterialListView;
 
 
-    private Timer timer = null;
-    private TimerTask timerTask = null;
     private boolean visible;
+
+
 
     @Override
     public void onAttach(Context context){
         super.onAttach(context);
         mContext = context;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+
     }
 
     @Override
@@ -80,11 +97,10 @@ public class Fragment_cart extends BaseFragment {
 
         initRefresh();
 
-        startTimer(); //开始
 
         //如果不是第一次进入，那么保存用户的习惯，比如说商品排列方式
         if(first != 1){
-            //getActivity().invalidateOptionsMenu(); //重新绘制menu
+
         }
 
         first++;
@@ -172,11 +188,6 @@ public class Fragment_cart extends BaseFragment {
             @Override
             public void onRefresh() {
                 // TODO Auto-generated method stub
-                //EventBus.getDefault().post(new MessageEvent("刷新购物车"));
-                if(!MainActivity.TESTMODE) {
-                    //获取信息，然后再刷新UI
-                }
-                startTimer(); //开始
 
                 init(); //再填充数据
 
@@ -201,45 +212,26 @@ public class Fragment_cart extends BaseFragment {
             //相当于Fragment的onResume
             Log.i(TAG,"可见");
             visible= true;
-            init();
-            startTimer();
+
         } else {
             //相当于Fragment的onPause
             Log.i(TAG,"不可见");
-            stopTimer();
             visible = false;
         }
     }
 
-    private void startTimer() {
-        stopTimer();
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if(visible){
-                    if(!MainActivity.TESTMODE) {
-                        //获取信息，然后再刷新UI
-//                        EventBus.getDefault().post(new InternetEvent(InternetUtil.bulkUrl,Constant.REQUEST_Bulk));
-                    }
-                    Log.i("uirefresh","uiRefresh");
-                    init();
-                    startTimer(); //开始
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void plan(UiEvent event){
 
-                }
+        //Log.i("uirefresh","uiRefresh2333");
+        if(visible){
+            if(!MainActivity.TESTMODE) {
             }
-        };
-        timer.schedule(timerTask,3000); //3s刷新一次
+           // Log.i("uirefresh","uiRefresh");
+            init();
+        }
     }
 
-    private void stopTimer() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-        if (timerTask != null) {
-            timerTask.cancel();
-            timerTask = null;
-        }
-    }
+
+
 }

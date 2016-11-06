@@ -1,14 +1,19 @@
 package com.jackie.flash_buy.views.home;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,6 +37,7 @@ import com.jackie.flash_buy.bus.ListEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.bus.PageEvent;
 import com.jackie.flash_buy.bus.PlanBuyEvent;
+import com.jackie.flash_buy.bus.UiEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.InternetItem;
 import com.jackie.flash_buy.model.Item;
@@ -67,8 +73,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import immortalz.me.library.TransitionsHeleper;
 import me.shaohui.bottomdialog.BottomDialog;
 
 public class MainActivity extends BaseActivity {
@@ -100,11 +108,22 @@ public class MainActivity extends BaseActivity {
     //购物车有关
     private ListView lv_cart;
     ItemAdapter lvAdapter;
+    //提示词
+    private String tips;
 
-    static {
-        //访问数据库看看是不是登录成功了
+    android.os.Handler mHandler = new Handler(){
+        public void handleMessage(Message msg) {
 
-    }
+
+
+
+            EventBus.getDefault().post(new UiEvent("cart"));
+
+            //showAlerDialog("酸奶");
+
+            super.handleMessage(msg);
+        }
+    };
 
     public User getUser(){
         SharedPreferences sharedPreferences = getSharedPreferences("jackieLiu", Context.MODE_PRIVATE);
@@ -113,11 +132,12 @@ public class MainActivity extends BaseActivity {
         String mail = sharedPreferences.getString("mail", "");
         return  new User(mail,id,name);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mContext = this;
         LocationService.startLocation(this);  //开始定位！
 
 
@@ -135,7 +155,7 @@ public class MainActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         setFab();
 
-        mContext = this;
+
         clContent = (CoordinatorLayout) findViewById(R.id.clt);
         initUI();
 
@@ -145,16 +165,24 @@ public class MainActivity extends BaseActivity {
 
     }
 
+
     private void setFab() {
         mActionButtonPlus =(FloatingActionButtonPlus) findViewById(R.id.fabPlus);
         mActionButtonPlus.setOnItemClickListener(new FloatingActionButtonPlus.OnItemClickListener() {
             @Override
             public void onItemClick(FabTagLayout tagView, int position) {
                 if(position == 0){
-                    Intent intent =new Intent(mContext,ScanActivity.class);
-                    intent.putExtra(Constant.REQUEST_SCAN_MODE, Constant.REQUEST_SCAN_MODE_ALL_MODE);
-                    startActivity(intent);
+                    FloatingActionButton fabscan =  (FloatingActionButton)tagView.findViewById(R.id.fabScan);
+                    int[] startingLocation = new int[2];
+                    fabscan.getLocationOnScreen(startingLocation);
+                    startingLocation[0] += fabscan.getWidth() / 2;
+                    ScanActivity.startCameraFromLocation(startingLocation, (Activity) mContext);
+                    overridePendingTransition(0, 0);
                 }
+                if(position == 1){
+                    mHandler.sendMessageDelayed(new Message(),20000);
+                }
+
                 //1是favorite,2是cart
                 if(position == 2){
                     BottomDialog.create(getSupportFragmentManager())
@@ -162,6 +190,9 @@ public class MainActivity extends BaseActivity {
                                 @Override
                                 public void bindView(View v) {
                                     // you can do bind view operation
+                                    if(cart.size() == 0){
+                                        v.findViewById(R.id.tips).setVisibility(View.VISIBLE);
+                                    }
                                     lv_cart = (ListView) v.findViewById(R.id.list_cart);
                                     lvAdapter = new ItemAdapter(mContext,R.layout.list_item,cart);
                                     lv_cart.setAdapter(lvAdapter);
@@ -188,16 +219,20 @@ public class MainActivity extends BaseActivity {
                                                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                                                 if (which == DialogAction.POSITIVE) {
                                                                     //生成新的订单，清空购物车，跳转支付页面
-                                                                    Order order = new Order(cart,"订单号",user.getId(), Util.getCurrentDate(),"alipay","家润多",0,0);
-                                                                    User.orders.add(order);
-                                                                    lv_cart.setAdapter(null);
-                                                                    cart = new ArrayList<>();
-                                                                    realPlanBuy = new ArrayList<>();
-                                                                    //跳转到订单详情进行支付
-                                                                    Intent intent = new Intent(MainActivity.this, OrderActivity.class);
-                                                                    intent.putExtra("order", order);
-                                                                    startActivity(intent);
+
+                                                                        Order order = new Order(cart,"订单号",user.getId(), Util.getCurrentDate(),"alipay","家润多",0,0);
+                                                                        User.orders.add(order);
+                                                                        lv_cart.setAdapter(null);
+                                                                        cart = new ArrayList<>();
+                                                                        realPlanBuy = new ArrayList<>();
+                                                                        //跳转到订单详情进行支付
+                                                                        Intent intent = new Intent(MainActivity.this, OrderActivity.class);
+                                                                        intent.putExtra("order", order);
+                                                                        startActivity(intent);
+                                                                    return;
                                                                 }
+                                                                //否提醒用户还有那些没买
+                                                                showForgetDialog();
                                                             }
                                                         })
                                                         .show();
@@ -219,7 +254,7 @@ public class MainActivity extends BaseActivity {
                                 }
                             })
                             .setLayoutRes(R.layout.layout_bottom_dialog)
-                            .setDimAmount(0.1f)            // Dialog window 背景色深度 范围：0 到 1，默认是0.2f
+                            .setDimAmount(0.3f)            // Dialog window 背景色深度 范围：0 到 1，默认是0.2f
                             .setCancelOutside(true)     // 点击外部区域是否关闭，默认true
                             .setTag("BottomDialog")     // 设置DialogFragment的tag
                             .show();
@@ -227,7 +262,9 @@ public class MainActivity extends BaseActivity {
                 if(position == 3){
                     TESTMODE = !TESTMODE; //取反
                     testMode();  //获取测试数据
-                    EventBus.getDefault().post(new MessageEvent("测试模式：" + TESTMODE));
+
+
+                   // EventBus.getDefault().post(new MessageEvent("测试模式：" + TESTMODE));
                 }
                 //EventBus.getDefault().post(new MessageEvent("Click btn" + position));
             }
@@ -325,6 +362,11 @@ public class MainActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void snackBar(MessageEvent messageEvent){
+        if(tips != null && tips.equals(messageEvent.message)){
+            return;
+        }
+        tips = messageEvent.message;
+
         if(messageEvent.item != null){
             Toast toast = Toast.makeText(getApplicationContext(),
                     messageEvent.message, Toast.LENGTH_LONG);
@@ -346,7 +388,7 @@ public class MainActivity extends BaseActivity {
     public void pageChanged(PageEvent event){
         mViewPager.setCurrentItem(mViewPager.getCurrentItem() + event.off, true);
         status = 1; //需要定位了
-        EventBus.getDefault().post(new PlanBuyEvent("initMap"));
+        //EventBus.getDefault().post(new PlanBuyEvent("initMap"));
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
@@ -441,6 +483,8 @@ public class MainActivity extends BaseActivity {
     private void testMode(){
         cart = new ArrayList<>();
 
+
+
         Item item2 = new Item();
         item2.setName("安慕希酸奶");
         item2.setPrice(59.4);
@@ -453,8 +497,8 @@ public class MainActivity extends BaseActivity {
         lineItem.setItem(item2);
         lineItem.setNum(1);
 
-        //这里有一个小bug,第一个东西不能显示出来
         cart.add(lineItem);
+
 
         Item item3 = new Item();
         item3.setName("三只松鼠夏威夷果");
@@ -464,7 +508,6 @@ public class MainActivity extends BaseActivity {
         lineItem3.setItem(item3);
         lineItem3.setNum(1);
         cart.add(lineItem3);
-
 
     }
 
@@ -492,8 +535,12 @@ public class MainActivity extends BaseActivity {
                 //将json转换为一个Order
 
                 Order order = gson.fromJson(json,Order.class);
+                //暂时把pay_way做成过敏源提醒
+                if(!order.getPay_way().equals("")){
+                    showAlerDialog(order.getPay_way());
+                }
+                //如果json为空的话，那么会变成null
                 if(order == null){
-
                 }else {
                     //将剩下的加入购物车
                     cart.addAll(order.getLineItems());
@@ -501,13 +548,15 @@ public class MainActivity extends BaseActivity {
                     double total_price = 0;
                     //如果说这个预购商品已经放进去了，那么就移除它
                     for (LineItem lineItem : cart) {
-                        for (LineItem tempItem : realPlanBuy) {
-                            if (lineItem.getItem().getName().equals(tempItem.getItem().getName())) {
-                                realPlanBuy.remove(tempItem); //移除预购商品
+                        Iterator iterator = realPlanBuy.iterator();
+                        while (iterator.hasNext()){
+                            if(lineItem.getItem().getName().equals(((LineItem)iterator).getItem().getName())){
+                                iterator.remove();
                             }
                         }
-                        total_price += lineItem.getUnitPrice();
+                        total_price += lineItem.getUnitPrice();  //得到总价
                     }
+
 
                     if (lvAdapter != null) {
                         lvAdapter.notifyDataSetChanged(); //通知更新
@@ -526,5 +575,43 @@ public class MainActivity extends BaseActivity {
             e.printStackTrace();
         }
 
+    }
+    //提示过敏源的Dialog
+    private void showAlerDialog(String name) {
+        new MaterialDialog.Builder(this)
+                .iconRes(R.drawable.ic_warning)
+                .limitIconToDefaultSize()
+                .title(Html.fromHtml(getString(R.string.permissionSample, name)))
+                .positiveText("确定")
+                .negativeText("取消")
+                .onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                        showToast("Prompt checked? " + dialog.isPromptCheckBoxChecked());
+                    }
+                })
+                .checkBoxPromptRes(R.string.dont_ask_again, false, null)
+                .show();
+    }
+
+    //提示以往购买购物清单的Diaglog
+    private void showForgetDialog(){
+        StringBuilder tips =  new StringBuilder("");
+        for(LineItem lineitem:  realPlanBuy){
+            tips.append(lineitem.getItem().getName() + "    ");
+        }
+        new MaterialDialog.Builder(this)
+                .iconRes(R.drawable.ic_forget_mark)
+                .limitIconToDefaultSize()
+                .title("您的购买清单中还有商品没有购买！")
+                .content(tips)
+                .positiveText("好的我知道了")
+                .onAny(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+//                        showToast("Prompt checked? " + dialog.isPromptCheckBoxChecked());
+                    }
+                })
+                .show();
     }
 }

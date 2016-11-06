@@ -16,6 +16,7 @@
         app:tagText="Camera"
         >
         <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabScan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_camera"

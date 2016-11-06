@@ -19,6 +19,10 @@ import com.jackie.flash_buy.utils.RoundedTransformation;
 import com.jackie.flash_buy.utils.activity.ActivityUtils;
 import com.squareup.picasso.Picasso;
 
+import immortalz.me.library.TransitionsHeleper;
+import immortalz.me.library.bean.InfoBean;
+import immortalz.me.library.method.InflateShowMethod;
+
 /**
  * Created by Jack on 2016/11/1.
  */
@@ -39,6 +43,7 @@ public class PlanActivity  extends BaseActivity{
 
     private PlanFragment mPlanFragment;
     private PlanPresenter mPlanPresenter;
+    public static Market sMarkt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,30 +73,50 @@ public class PlanActivity  extends BaseActivity{
 
     private void initUI() {
         //获取上个ACTIVITY给的数据
-        if(getIntent().getExtras().getParcelable("market") != null) {
-            Market market = getIntent().getExtras().getParcelable("market");
+
+            Market market = sMarkt;
             tvMarketDescri.setText(market.getDesri());
             tvMarketName.setText(market.getName());
-            if(!market.getLogo().equals(""))
-                Picasso.with(this)
-                        .load(market.getLogo())
-                        .transform( new RoundedTransformation())
-                        .into(ivMarketPhoto);
 
-        }
+//            if(!market.getLogo().equals(""))
+//                Picasso.with(this)
+//                        .load(market.getLogo())
+//                        .transform( new RoundedTransformation())
+//                        .into(ivMarketPhoto);
+
+
     }
 
     private void setUI() {
+        this.ivMarketPhoto = (ImageView) findViewById(R.id.ivMarketPhoto);
+
+        TransitionsHeleper.getInstance()
+                .setShowMethod(new InflateShowMethod(this, R.layout.activity_plan) {
+                    @Override
+                    public void loadCopyView(InfoBean bean, ImageView copyView) {
+                        Picasso.with(PlanActivity.this)
+                                .load(bean.getImgUrl())
+                                .into(copyView);
+                    }
+
+                    @Override
+                    public void loadTargetView(InfoBean bean, ImageView targetView) {
+                        Picasso.with(PlanActivity.this)
+                                .load(bean.getImgUrl())
+                                .into(targetView);
+                    }
+                })
+                .show(this, ivMarketPhoto);
+
         this.appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         this.collapsingtoolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
-   //     this.ivLogo = (ImageView) findViewById(R.id.ivLogo);
         this.llMarketRoot = (LinearLayout) findViewById(R.id.llMarketRoot);
         this.llMarketDetail = (LinearLayout) findViewById(R.id.llMarketDetail);
         this.btnFollow = (Button) findViewById(R.id.btnFollow);
         this.tvMarketDescri = (TextView) findViewById(R.id.tvMarketDescri);
         this.tvMarketName = (TextView) findViewById(R.id.tvMarketName);
-        this.ivMarketPhoto = (ImageView) findViewById(R.id.ivMarketPhoto);
+
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

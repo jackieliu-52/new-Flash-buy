@@ -13,8 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.adapter.ItemAdapter;
 import com.jackie.flash_buy.bus.PlanBuyEvent;
 import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.views.home.MainActivity;
@@ -37,6 +41,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import me.shaohui.bottomdialog.BottomDialog;
+
 /**
  * 地图展示的Fragment
  *
@@ -53,6 +59,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     private static final Double MAX = Double.MAX_VALUE;  //不能检测时的距离
 
     private MapView mapView;
+    private ImageButton mImageView;
 
     private MarkLayer markLayer;
     private RouteLayer routeLayer;
@@ -69,6 +76,8 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
 
     private Timer timer = null;
     private TimerTask timerTask = null;
+
+
     private boolean dingweing; //看看是否定位了
     private boolean visible; //是否可见
     private boolean openSensor = true; //是否打开传感器,默认打开
@@ -84,6 +93,9 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     Bitmap bmp2;
     Bitmap bmp3;
 
+
+    private ListView mPlanBuyList;  //
+    ItemAdapter lvAdapter;
     static {
         for(int i =0;i < 3;i++){
             nums.add(Integer.valueOf(0));
@@ -120,6 +132,31 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         initMapDatas(); //初始化地图数据
 
         mapView = (MapView) view.findViewById(R.id.mapview);
+        mImageView = (ImageButton) view.findViewById(R.id.ivChanggou);
+        mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BottomDialog.create(getChildFragmentManager())
+                        .setViewListener(new BottomDialog.ViewListener() {
+                            @Override
+                            public void bindView(View v) {
+                                // // You can do any of the necessary the operation with the view
+                                mPlanBuyList = (ListView) v.findViewById(R.id.listPlanBuy);
+                                if(MainActivity.realPlanBuy.size() == 0){
+                                    (v.findViewById(R.id.plan_tips)).setVisibility(View.VISIBLE);
+                                }else {
+                                    lvAdapter = new ItemAdapter(mContext,R.layout.list_item,MainActivity.realPlanBuy);
+                                    mPlanBuyList.setAdapter(lvAdapter);
+                                }
+                            }
+                        })
+                        .setLayoutRes(R.layout.dialog_layout)
+                        .setDimAmount(0.3f)            // Dialog window dim amount(can change window background color）, range：0 to 1，default is : 0.2f
+                        .setCancelOutside(true)     // click the external area whether is closed, default is : true
+                        .setTag("BottomDialog")     // setting the DialogFragment tag
+                        .show();
+            }
+        });
         loadMap();
         //注册传感器
         sensorManager.registerListener(this, sensorManager.getDefaultSensor

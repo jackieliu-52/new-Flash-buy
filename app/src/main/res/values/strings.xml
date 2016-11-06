@@ -23,5 +23,7 @@
         <item>2</item>
         <item>3</item>
     </string-array>
-
+    <string name="permissionSample"><![CDATA[您的购物车中有 <b>%1$s</b>  过敏源 ]]></string>
+    <string name="dont_ask_again">不再提示</string>
+    dont_ask_again
 </resources>

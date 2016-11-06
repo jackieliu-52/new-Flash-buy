@@ -12,11 +12,16 @@ import android.widget.Button;
 
 import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
+import com.jackie.flash_buy.bus.UiEvent;
+import com.jackie.flash_buy.model.Item;
+import com.jackie.flash_buy.model.LineItem;
 import com.jackie.flash_buy.model.Round;
 import com.jackie.flash_buy.model.iBeaconView;
+import com.jackie.flash_buy.utils.BluetoothManager;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.utils.location.LocationHelper;
+import com.jackie.flash_buy.views.home.MainActivity;
 import com.skybeacon.sdk.RangingBeaconsListener;
 import com.skybeacon.sdk.ScanServiceStateCallback;
 import com.skybeacon.sdk.locate.SKYBeacon;
@@ -31,7 +36,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * 用于定位的Service
+ * 用于定位的Service，同时也可以定时获取Cart信息
  */
 public class LocationService extends IntentService {
     private static final String ACTION_LOCATION = "Location!";
@@ -100,64 +105,100 @@ public class LocationService extends IntentService {
         return new TimerTask() {
             @Override
             public void run() {
-                //这里面进行定位操作
-                EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart));
-
-                double d1 = distances.get(0);
-                double d2 = distances.get(1);
-                double d3 = distances.get(2);
-                dts = new double[]{d1 * 100, d2 * 100, d3 * 100};  //距离*100，方便计算
-                //Log.i("Location","d1: " + d1 + "米  d2:  " + d2 + "米  d3:  " + d3);
-                boolean flag;
-                flag = ((d1 != MAX) && (d2 != MAX) && (d3 != MAX));
-                if (flag) {
-                    //开始定位
-                    Log.d("LocationService", "开始定位");
-
-                    // 获得定位点
-                    double[] centroid = LocationHelper.getLocation(beacons, dts);
-
-
-                    if (centroid != null) {
-                        Log.i("LocationService", "定位 sucess");
-                        if (!mRectF.contains((float) centroid[0], (float) centroid[1])) {
-                            //如果定位结果超出地图的范围，那么不绘制
-                            return;
-                        }
-                        Fragment_map.location = new PointF((float) centroid[0], (float) centroid[1]);
-
-                        //如果定位在货架上
-                        if (mRectF1.contains((float) centroid[0], (float) centroid[1])) {
-                            //如果在第一个矩形中
-                            Fragment_map.location = new PointF(55, 299);
-                        }
-                        if (mRectF2.contains((float) centroid[0], (float) centroid[1])) {
-                            //如果在第2个矩形中
-                            Fragment_map.location = new PointF(270, 300);
-                        }
-                        if (mRectF3.contains((float) centroid[0], (float) centroid[1])) {
-                            //如果在第3个矩形中
-                            Fragment_map.location = new PointF(400, 300);
-                        }
-                        if (mRectF4.contains((float) centroid[0], (float) centroid[1])) {
-                            //如果在第4个矩形中
-                            Fragment_map.location = new PointF(640, 300);
-                        }
-                    } else {
-                        Log.i("LocationService", "定位错误");
-                    }
-
-                    //如果有定位信息，就进行定位
-                    if (Fragment_map.location != null) {
-                        InternetUtil.postStr("", InternetUtil.args4 + "=9&x=" + Fragment_map.location.x + "&y=" + Fragment_map.location.y);
-
-                    }
-                } else {
-                    Log.i("LocationService", "有ibeacon没有定位信息");
-                    EventBus.getDefault().post(new MessageEvent("定位失败！请检查蓝牙是否打开"));
+                //testCart();
+                if(!MainActivity.TESTMODE) {
+                    getCart();
                 }
+                EventBus.getDefault().post(new UiEvent("cart"));  //刷新UI
+                //如果蓝牙打开了，才进行蓝牙连接
+                if(BluetoothManager.isBluetoothEnabled()) {
+                    getLocation();
+                }else{
+                    //只提示用户一次
+                    EventBus.getDefault().post(new MessageEvent("请您打开蓝牙"));
+                }
+
             }
         };
+    }
+
+    private void testCart(){
+        Item item2 = new Item();
+        item2.setName("安慕希酸奶");
+        item2.setPrice(59.4);
+        item2.setImage("http://obsyvbwp3.bkt.clouddn.com/133.JPG");
+        item2.setIid("1330");
+        item2.setPid("13");
+        item2.setSource("中国");
+        item2.setSize("205g*12");
+        LineItem lineItem = new LineItem();
+        lineItem.setItem(item2);
+        lineItem.setNum(1);
+
+
+        MainActivity.cart.add(lineItem);
+    }
+    private void getLocation(){
+        //这里面进行定位操作
+        double d1 = distances.get(0);
+        double d2 = distances.get(1);
+        double d3 = distances.get(2);
+        dts = new double[]{d1 * 100, d2 * 100, d3 * 100};  //距离*100，方便计算
+        //Log.i("Location","d1: " + d1 + "米  d2:  " + d2 + "米  d3:  " + d3);
+        boolean flag;
+        flag = ((d1 != MAX) && (d2 != MAX) && (d3 != MAX));
+        if (flag) {
+            //开始定位
+            Log.d("LocationService", "开始定位");
+
+            // 获得定位点
+            double[] centroid = LocationHelper.getLocation(beacons, dts);
+
+
+            if (centroid != null) {
+                Log.i("LocationService", "定位 sucess");
+                if (!mRectF.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果定位结果超出地图的范围，那么不绘制
+                    return;
+                }
+                Fragment_map.location = new PointF((float) centroid[0], (float) centroid[1]);
+
+                //如果定位在货架上
+                if (mRectF1.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第一个矩形中
+                    Fragment_map.location = new PointF(55, 299);
+                }
+                if (mRectF2.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第2个矩形中
+                    Fragment_map.location = new PointF(270, 300);
+                }
+                if (mRectF3.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第3个矩形中
+                    Fragment_map.location = new PointF(400, 300);
+                }
+                if (mRectF4.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第4个矩形中
+                    Fragment_map.location = new PointF(640, 300);
+                }
+            } else {
+                Log.i("LocationService", "定位错误");
+            }
+
+            //如果有定位信息，就发送给服务器
+            if (Fragment_map.location != null) {
+                InternetUtil.postStr("", InternetUtil.args4 + "=9&x=" + Fragment_map.location.x + "&y=" + Fragment_map.location.y);
+
+            }
+        } else {
+            Log.i("LocationService", "有ibeacon没有定位信息");
+            EventBus.getDefault().post(new MessageEvent("定位失败！请检查蓝牙是否打开"));
+        }
+    }
+    /**
+     * 从服务器拉取Cart信息
+     */
+    private void getCart(){
+        EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart));
     }
 
     /**
