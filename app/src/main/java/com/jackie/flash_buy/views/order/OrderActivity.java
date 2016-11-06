@@ -82,7 +82,7 @@ public class OrderActivity extends AppCompatActivity {
         init();
 
         mLoadingView = (LoadingView) findViewById(R.id.loading_view);
-        mLoadingView.addAnimation(Color.parseColor("#5E88FC"),R.drawable.ic_checkout,LoadingView.FROM_LEFT);
+        mLoadingView.addAnimation(Color.parseColor("#OBBCD6"),R.drawable.ic_checkout,LoadingView.FROM_LEFT);
         mLoadingView.addAnimation(Color.parseColor("#3FB837"),R.drawable.ic_check_right,LoadingView.FROM_LEFT);
         //also you can add listener for getting callback (optional)
         mLoadingView.addListener(new LoadingView.LoadingListener() {
