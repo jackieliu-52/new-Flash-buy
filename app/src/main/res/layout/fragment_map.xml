@@ -15,7 +15,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
         android:alpha="100"
-        android:src ="@drawable/ic_basket_64px"
+        android:src ="@drawable/ic_basket_24dp"
         />
     <Button
         android:id="@+id/bt_test"

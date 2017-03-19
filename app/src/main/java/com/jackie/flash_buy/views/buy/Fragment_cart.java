@@ -7,7 +7,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.dexafree.materialList.card.Card;
 import com.dexafree.materialList.card.CardProvider;
 import com.dexafree.materialList.card.action.TextViewAction;
@@ -30,24 +34,28 @@ import com.jackie.flash_buy.bus.UiEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
+import com.jackie.flash_buy.model.Order;
 import com.jackie.flash_buy.ui.Card.GoodsCardProvider;
 import com.jackie.flash_buy.utils.Constant;
 import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.views.home.MainActivity;
+import com.litesuits.common.utils.VibrateUtil;
 import com.squareup.picasso.RequestCreator;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
 /**
- * 实时账单,需要把TimerTask换成handler，因为只要有一次一场，Timer就会挂掉
+ * 实时账单,需要把TimerTask换成handler，因为只要有一次失败，Timer就会挂掉
  */
-public class Fragment_cart extends BaseFragment {
+public class Fragment_cart extends BaseFragment  {
     private  final String TAG = "Fragment_cart";
     Context mContext;
     MaterialListView mListView;
@@ -55,6 +63,9 @@ public class Fragment_cart extends BaseFragment {
 
     public static int first = 1;   //是否是第一次进入,保存用户操作状态使用
     static boolean isMutiList = false;  //是否是多重列表
+    static List<LineItem> oldDatas = new ArrayList<>();  //保存老的数据
+
+    static List<Card> cards = new ArrayList<>();  //更新数据应该用这个
 
 
     SwipeRefreshLayout sr_swipeMaterialListView;
@@ -62,6 +73,18 @@ public class Fragment_cart extends BaseFragment {
 
     private boolean visible;
 
+
+
+    android.os.Handler mHandler = new Handler(){
+        public void handleMessage(Message msg) {
+
+            //检查是否存在过敏源
+            checkAler(MainActivity.cart);
+
+
+            super.handleMessage(msg);
+        }
+    };
 
 
     @Override
@@ -92,9 +115,9 @@ public class Fragment_cart extends BaseFragment {
         mListView = (MaterialListView) view.findViewById(R.id.material_cart_list);
         sr_swipeMaterialListView = (SwipeRefreshLayout) view.findViewById(R.id.swipe_MaterialListView);
 
-        //init();
-        mListAdapter = mListView.getAdapter();
 
+        mListAdapter = mListView.getAdapter();
+        init();
         initRefresh();
 
 
@@ -118,7 +141,7 @@ public class Fragment_cart extends BaseFragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mListAdapter.clearAll();
+                mListAdapter.clearAll();  //清空
             }
         });
         for(LineItem lineItem: MainActivity.cart){
@@ -171,6 +194,7 @@ public class Fragment_cart extends BaseFragment {
                     );
             provider.setDividerVisible(false);
             final Card card = provider.endConfig().build();
+
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -189,7 +213,8 @@ public class Fragment_cart extends BaseFragment {
             public void onRefresh() {
                 // TODO Auto-generated method stub
 
-                init(); //再填充数据
+                refreshDatas();
+                //mListAdapter.notifyDataSetChanged(); //通知数据刷新了
 
 
                 //最后再把刷新取消
@@ -222,16 +247,78 @@ public class Fragment_cart extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void plan(UiEvent event){
-
-        //Log.i("uirefresh","uiRefresh2333");
+        //如果可见的话，那么就刷新页面
         if(visible){
-            if(!MainActivity.TESTMODE) {
+
+            Log.i("cart","固定刷新！！！");
+           // mListAdapter.notifyDataSetChanged(); //通知数据刷新了
+           // refreshDatas();
+        }
+    }
+    //刷新界面
+    private void refreshDatas(){
+        /*
+        //利用DiffUtil.calculateDiff()方法，传入一个规则DiffUtil.Callback对象，
+        //和是否检测移动item的 boolean变量，得到DiffUtil.DiffResult 的对象
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MyDiffCallback(oldDatas, MainActivity.cart), true);
+        //利用DiffUtil.DiffResult对象的dispatchUpdatesTo（）方法，传入RecyclerView的Adapter，轻松成为文艺青年
+        diffResult.dispatchUpdatesTo(mListAdapter);
+        oldDatas = MainActivity.cart; //更新数据集
+        mListAdapter.setDatas(oldDatas);
+        */
+        //这里面本来想用DiffUtil来更新数据，但是实际上发现这个CardView做了一层封装，所以只能暂时采用全部刷新来处理
+        init();
+        mHandler.sendMessageDelayed(new Message(),1000); //延迟1s显示
+
+
+        //mListAdapter.notifyDataSetChanged();
+    }
+
+
+
+    /**
+     * 查看是否存在过敏源
+     */
+    private void checkAler(ArrayList<LineItem> lineItems) {
+        for(LineItem l : lineItems){
+            if(l.getItem().getCategory()  != null) {
+                if (!l.getItem().getCategory().equals("")) {
+                    showAlerDialog(l.getItem().getCategory());
+                }
             }
-           // Log.i("uirefresh","uiRefresh");
-            init();
         }
     }
 
+    
+    //提示过敏源的Dialog
+    private void showAlerDialog(final String name) {
+        if(!MainActivity.IsShowDialog) {
+            MainActivity.IsShowDialog = true;
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //震动一下
+                    VibrateUtil.vibrate(mContext,1000);
+                    new MaterialDialog.Builder(mContext)
+                            .iconRes(R.drawable.ic_warning)
+                            .limitIconToDefaultSize()
+                            .title(Html.fromHtml(getString(R.string.permissionSample, name)))
+                            .positiveText("确定")
+                            .negativeText("取消")
+                            .onAny(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    MainActivity.IsShowDialog = false;
+                                }
+                            })
+                            .checkBoxPromptRes(R.string.dont_ask_again, false, null)
+                            .show();
+                }
+            });
+        }
+    }
+    
+    
 
 
 }

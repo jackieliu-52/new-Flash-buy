@@ -89,24 +89,25 @@ public final class TestData {
 //        nodes.add(new PointF(1090, 840));
 //        nodes.add(new PointF(700, 714));
 //        nodes.add(new PointF(1030, 0));
+        nodes.add(new PointF(888, 830));
+        nodes.add(new PointF(645, 823));
+        nodes.add(new PointF(645, 737));
+        nodes.add(new PointF(783, 789));
+        nodes.add(new PointF(633, 635));
+        nodes.add(new PointF(541, 559));
+        nodes.add(new PointF(541, 403));
+        nodes.add(new PointF(549, 127));
+        nodes.add(new PointF(421, 89));
+        nodes.add(new PointF(283, 195));
+        nodes.add(new PointF(325, 343));
+        nodes.add(new PointF(349, 409));
+        nodes.add(new PointF(199, 409));
+        nodes.add(new PointF(213, 527));
+        nodes.add(new PointF(333, 689));
+        nodes.add(new PointF(141, 851));
+        //17条，第16
+        nodes.add(new PointF(415, 809));
 
-        nodes.add(new PointF(650,680 ));
-        nodes.add(new PointF(650,356 ));
-        nodes.add(new PointF(580,356 ));
-        nodes.add(new PointF(650,35 ));
-        nodes.add(new PointF(381,35 ));
-
-
-        nodes.add(new PointF(285,35 ));
-        nodes.add(new PointF(381,350));
-        nodes.add(new PointF(415,350));
-        nodes.add(new PointF(285,450));
-        nodes.add(new PointF(285,150));
-
-        nodes.add(new PointF(381,680));
-        nodes.add(new PointF(285,680));
-        nodes.add(new PointF(60,680));
-        nodes.add(new PointF(60,0));
         return nodes;
     }
 
@@ -227,45 +228,77 @@ public final class TestData {
         nodesContact.add(new PointF(0, 1));
         nodesContact.add(new PointF(0, 2));
         nodesContact.add(new PointF(0, 3));
-        nodesContact.add(new PointF(0, 10));
-        nodesContact.add(new PointF(0, 11));
-        nodesContact.add(new PointF(0, 12));
+        nodesContact.add(new PointF(0, 4));
+        nodesContact.add(new PointF(0, 5));
+        nodesContact.add(new PointF(0, 16));
+
+
         nodesContact.add(new PointF(1, 2));
         nodesContact.add(new PointF(1, 3));
+        nodesContact.add(new PointF(1, 4));
+        nodesContact.add(new PointF(1, 5));
+        nodesContact.add(new PointF(1, 6));
+        nodesContact.add(new PointF(1, 7));
+        nodesContact.add(new PointF(1, 15));
+        nodesContact.add(new PointF(1, 16));
+
         nodesContact.add(new PointF(2, 3));
+        nodesContact.add(new PointF(2, 4));
+        nodesContact.add(new PointF(2, 5));
+        nodesContact.add(new PointF(2, 6));
+        nodesContact.add(new PointF(2, 7));
+        nodesContact.add(new PointF(2, 16));
+
         nodesContact.add(new PointF(3, 4));
         nodesContact.add(new PointF(3, 5));
+        nodesContact.add(new PointF(3, 6));
+        nodesContact.add(new PointF(3, 7));
+        nodesContact.add(new PointF(3, 15));
+        nodesContact.add(new PointF(3, 16));
+
         nodesContact.add(new PointF(4, 5));
         nodesContact.add(new PointF(4, 6));
         nodesContact.add(new PointF(4, 7));
-        nodesContact.add(new PointF(4, 8));
-        nodesContact.add(new PointF(4, 9));
-        nodesContact.add(new PointF(4, 10));
-        nodesContact.add(new PointF(4, 11));
+        nodesContact.add(new PointF(4, 16));
+
         nodesContact.add(new PointF(5, 6));
         nodesContact.add(new PointF(5, 7));
-        nodesContact.add(new PointF(5, 8));
-        nodesContact.add(new PointF(5, 9));
-        nodesContact.add(new PointF(5, 10));
-        nodesContact.add(new PointF(5, 11));
+
         nodesContact.add(new PointF(6, 7));
-        nodesContact.add(new PointF(6, 8));
-        nodesContact.add(new PointF(6, 9));
-        nodesContact.add(new PointF(6, 10));
-        nodesContact.add(new PointF(6, 11));
+
         nodesContact.add(new PointF(7, 8));
-        nodesContact.add(new PointF(7, 9));
-        nodesContact.add(new PointF(7, 10));
-        nodesContact.add(new PointF(7, 11));
+
         nodesContact.add(new PointF(8, 9));
-        nodesContact.add(new PointF(8, 10));
-        nodesContact.add(new PointF(8, 11));
+
+
         nodesContact.add(new PointF(9, 10));
         nodesContact.add(new PointF(9, 11));
+        nodesContact.add(new PointF(9, 12));
+        nodesContact.add(new PointF(9, 13));
+        nodesContact.add(new PointF(9, 14));
+
         nodesContact.add(new PointF(10, 11));
         nodesContact.add(new PointF(10, 12));
+        nodesContact.add(new PointF(10, 13));
+        nodesContact.add(new PointF(10, 14));
+        nodesContact.add(new PointF(10, 15));
+
         nodesContact.add(new PointF(11, 12));
+        nodesContact.add(new PointF(11, 13));
+        nodesContact.add(new PointF(11, 14));
+        nodesContact.add(new PointF(11, 15));
+
         nodesContact.add(new PointF(12, 13));
+        nodesContact.add(new PointF(12, 14));
+
+        nodesContact.add(new PointF(13, 14));
+        nodesContact.add(new PointF(13, 16));
+
+        nodesContact.add(new PointF(14, 15));
+        nodesContact.add(new PointF(14, 16));
+
+
+        nodesContact.add(new PointF(15, 16));
         return nodesContact;
     }
 
@@ -315,24 +348,29 @@ public final class TestData {
 //        marks.add(new PointF(630, 195));
 //        marks.add(new PointF(630, 635));
 //        marks.add(new PointF(1020, 40));
-        marks.add(new PointF(230,450));  //糖果零食区域
-        marks.add(new PointF(230,150));  //生鲜水果区域
-        marks.add(new PointF(430,350));
-        marks.add(new PointF(540,350));  //两个都是酒水饮料区域
-        marks.add(new PointF(650,760));   //起点
-        marks.add(new PointF(60,25));   //终点
+//        marks.add(new PointF(230,450));  //糖果零食区域
+//        marks.add(new PointF(230,150));  //生鲜水果区域
+//        marks.add(new PointF(430,350));
+//        marks.add(new PointF(540,350));  //两个都是酒水饮料区域
+//        marks.add(new PointF(650,760));   //起点
+//        marks.add(new PointF(60,25));   //终点
 
+        marks.add(new PointF(182,410));   //零食饮料区
+        marks.add(new PointF(358,412));   //生活用品
+        marks.add(new PointF(480,406));   //生活用品2
+        marks.add(new PointF(888,830));   //起点
+        marks.add(new PointF(133,844));   //安全路口
         return marks;
     }
 
     public static List<String> getMarksName() {
         List<String> marksName = new ArrayList<>();
 
-        for (int i = 0; i < getMarks().size() -1; i++) {
-            marksName.add("location " + (i + 1));
-        }
-        marksName.add("start");
-        marksName.add("end");
+        marksName.add("");
+        marksName.add("");
+        marksName.add("");
+        marksName.add("");
+        marksName.add("");
         return marksName;
     }
 

@@ -1,6 +1,7 @@
 package com.jackie.flash_buy.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,14 +78,6 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
         ViewHolder viewHolder;
         if(convertView == null){
             view = mInflater.inflate(resId,parent,false);
-
-//            //不知道为什么mListener变成了null
-//            if(mListener == null){
-//                Log.e("test1","null");
-//            }else {
-//                Log.e("test1","not null");
-//            }
-
             viewHolder = new ViewHolder(view,mListener);
             view.setTag(viewHolder);
         }else {
@@ -111,6 +104,7 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
             tvDetails = (TextView) LineItemView.findViewById(R.id.tvDetails);
             tvMinus.setOnClickListener(this);
             tvAdd.setOnClickListener(this);
+            mImageView.setOnClickListener(this);
         }
 
         /**
@@ -146,7 +140,6 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
                         tvMinus.setVisibility(View.VISIBLE);
                         tvCount.setVisibility(View.VISIBLE);
                     }
-                    //lineItem.addNum();
                     tvCount.setText(String.valueOf(lineItem.getNum() + 1));  //数量变化
                     mListener.add(lineItem,false);
                 }
@@ -157,12 +150,14 @@ public class GoodsAdapter extends ArrayAdapter<LineItem> implements StickyListHe
                         tvMinus.setVisibility(View.GONE);
                         tvCount.setVisibility(View.GONE);
                     }
-                    //lineItem.minusNum();
                     tvCount.setText(String.valueOf(lineItem.getNum() - 1));  //数量变化
                     mListener.removeItem(lineItem,false);
                 }
                 break;
                 default:
+                  //  Log.d("Item",lineItem.getItem().getName());
+                    //打开详情列表，应该交给外部处理
+                    mListener.openItemActivity(lineItem.getItem());
                     break;
             }
         }

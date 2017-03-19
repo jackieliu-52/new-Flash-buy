@@ -1,11 +1,13 @@
 package com.jackie.flash_buy.utils.location;
 
 /**
- * knn算法
+ * 加权的knn算法
  */
 public class Knn {
 
     private Knn(){}
+
+    //离线
     private static int totaltest = 5;  //number of offline fingerprint
 
     private static int totalbeacon = 3;//number of beacon
@@ -68,7 +70,7 @@ public class Knn {
         //取所有的平均值
         nowx = nowx/k;
         nowy = nowy/k;
-        out[0] = nowx;
+        out[0] = -1;
         out[1] = nowy;
         return out;
 

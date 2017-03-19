@@ -74,7 +74,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
 
     private boolean visible;//是否可见
 
-    //这里要提供一个释放的方法
+    //这里要提供一个释放表示层的方法
     public static void endFragment(){
         instance = null;
     }
@@ -89,9 +89,6 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
             public void convert(final CommonRecyclerViewHolder holder, TwoTuple<String,Integer> item) {
                 //这里进行转化
                 holder.setText(R.id.tvType,item.first);
-//                Log.i("convert","selectd:" +selected);
-//                Log.i("convert",item.first);
-//                Log.i("convert",item.second+"");
                 if(item.second >= 1){
                     holder.getView(R.id.tvCount).setVisibility(View.VISIBLE);
                     holder.setText(R.id.tvCount,item.second + " ");
@@ -162,7 +159,7 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
                     }
                 })
         );
-        //listView
+        //listView,设置点击函数
         this.lvItems = (NestedScrollingListView) root.findViewById(R.id.lvItems);
 
         //API21以上才有效果,可以让Fab随着消失...然而改版后并没有fab了
@@ -281,6 +278,14 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
         }
     }
 
+    /**
+     * 打开新的Acitivity
+     * @param item 商品
+     */
+    @Override
+    public void openItemActivity(Item item) {
+        Log.i(TAG,"商品名称为"+item.getName());
+    }
 
 
     private View createBottomSheetView(){

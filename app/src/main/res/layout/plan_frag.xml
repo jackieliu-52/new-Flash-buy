@@ -6,11 +6,11 @@
     <com.flipboard.bottomsheet.BottomSheetLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/bottomSheetLayout"
+        android:layout_above="@id/bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_above="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView
@@ -34,13 +34,14 @@
 -->
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="match_parent"
+                  android:layout_height="50dp"
                   android:background="#aa000000"
                   android:id="@+id/bottom"
                   android:clickable="true"
                   android:onClick="onClick"
                   android:gravity="center_vertical"
                   android:layout_alignParentBottom="true"
-                  android:layout_height="50dp">
+                 >
         
         <RelativeLayout
             android:layout_width="60dp"
@@ -66,7 +67,7 @@
         </RelativeLayout>
         <TextView android:layout_marginLeft="10dp"
                   android:gravity="center_vertical"
-                  android:text="￥ 0"
+                  android:text="0.0元"
                   android:textSize="20sp"
                   android:textColor="#fff"
                   android:layout_width="0dp"

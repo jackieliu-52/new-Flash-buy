@@ -73,7 +73,12 @@ public  class Util {
         }
     }
 
-
+    /**
+     * 在drawable里面找icon
+     * @param context
+     * @param icon
+     * @return
+     */
     public static synchronized int stringToId(Context context, String icon) {
         int image = context.getResources().getIdentifier(icon, "drawable", "com.example.jack.myapplication");
         return  image;

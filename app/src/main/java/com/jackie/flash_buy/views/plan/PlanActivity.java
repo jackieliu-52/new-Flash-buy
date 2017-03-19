@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -15,13 +17,10 @@ import com.jackie.flash_buy.BaseActivity;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.model.Market;
 import com.jackie.flash_buy.presenters.plan.PlanPresenter;
+import com.jackie.flash_buy.ui.AppBarStateChangeListener;
 import com.jackie.flash_buy.utils.RoundedTransformation;
 import com.jackie.flash_buy.utils.activity.ActivityUtils;
 import com.squareup.picasso.Picasso;
-
-import immortalz.me.library.TransitionsHeleper;
-import immortalz.me.library.bean.InfoBean;
-import immortalz.me.library.method.InflateShowMethod;
 
 /**
  * Created by Jack on 2016/11/1.
@@ -38,7 +37,7 @@ public class PlanActivity  extends BaseActivity{
     private android.support.design.widget.CollapsingToolbarLayout collapsingtoolbar;
     private android.support.design.widget.AppBarLayout appBarLayout;
     private android.widget.FrameLayout planContentFrame;
-
+    private TextView tvToolBarMarket;
 
 
     private PlanFragment mPlanFragment;
@@ -74,39 +73,39 @@ public class PlanActivity  extends BaseActivity{
     private void initUI() {
         //获取上个ACTIVITY给的数据
 
-            Market market = sMarkt;
+            final Market market = sMarkt;
             tvMarketDescri.setText(market.getDesri());
             tvMarketName.setText(market.getName());
 
-//            if(!market.getLogo().equals(""))
-//                Picasso.with(this)
-//                        .load(market.getLogo())
-//                        .transform( new RoundedTransformation())
-//                        .into(ivMarketPhoto);
-
+            if(!market.getLogo().equals(""))
+                Picasso.with(this)
+                        .load(market.getLogo())
+                        .transform( new RoundedTransformation())
+                        .into(ivMarketPhoto);
+            //toolbar设置
+        appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, AppBarStateChangeListener.State state) {
+                Log.d("STATE", state.name());
+                if( state == State.EXPANDED ) {
+                    //展开状态
+                    tvToolBarMarket.setVisibility(View.INVISIBLE);
+                }else if(state == State.COLLAPSED){
+                    //折叠状态
+                    tvToolBarMarket.setVisibility(View.VISIBLE);
+                    tvToolBarMarket.setText(market.getName());
+                }else {
+                    //中间状态
+                    tvToolBarMarket.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
     }
 
     private void setUI() {
         this.ivMarketPhoto = (ImageView) findViewById(R.id.ivMarketPhoto);
 
-        TransitionsHeleper.getInstance()
-                .setShowMethod(new InflateShowMethod(this, R.layout.activity_plan) {
-                    @Override
-                    public void loadCopyView(InfoBean bean, ImageView copyView) {
-                        Picasso.with(PlanActivity.this)
-                                .load(bean.getImgUrl())
-                                .into(copyView);
-                    }
-
-                    @Override
-                    public void loadTargetView(InfoBean bean, ImageView targetView) {
-                        Picasso.with(PlanActivity.this)
-                                .load(bean.getImgUrl())
-                                .into(targetView);
-                    }
-                })
-                .show(this, ivMarketPhoto);
 
         this.appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         this.collapsingtoolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
@@ -116,7 +115,7 @@ public class PlanActivity  extends BaseActivity{
         this.btnFollow = (Button) findViewById(R.id.btnFollow);
         this.tvMarketDescri = (TextView) findViewById(R.id.tvMarketDescri);
         this.tvMarketName = (TextView) findViewById(R.id.tvMarketName);
-
+        this.tvToolBarMarket = (TextView) findViewById(R.id.tv_toolbar_market);
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

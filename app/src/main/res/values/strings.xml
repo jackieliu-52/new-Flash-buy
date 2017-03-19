@@ -12,6 +12,11 @@
         <item>女</item>
     </string-array>
 
+    <string-array name="ip">
+        <item>192.168.191.1</item>
+        <item>192.168.155.1</item>
+    </string-array>
+
     <string-array name="frequency_list">
         <item>一  周</item>
         <item>两  周</item>

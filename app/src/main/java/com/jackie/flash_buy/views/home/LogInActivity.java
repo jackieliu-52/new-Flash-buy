@@ -20,7 +20,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.bus.LogEvent;
 import com.mikepenz.iconics.context.IconicsLayoutInflater;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +40,7 @@ public class LogInActivity extends AppCompatActivity {
      * A dummy authentication store containing known user names and passwords.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "15100000000:233333", "13142390858:233333"
+            "15100000000:233333", "01234567891:233333"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -83,6 +86,7 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //获取验证码
+
             }
         });
     }
@@ -264,6 +268,9 @@ public class LogInActivity extends AppCompatActivity {
                 editor.putString("id",mEmail); //手机号码
                 editor.putString("name",mEmail); //手机号码
                 editor.commit();  //保存设置
+
+                //通知已经登录成功了
+                EventBus.getDefault().post(new LogEvent());
                 finish();
             } else {
                 mPasswordView.setError("验证码错误");

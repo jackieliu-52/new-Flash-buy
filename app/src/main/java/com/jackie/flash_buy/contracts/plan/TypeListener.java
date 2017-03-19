@@ -1,5 +1,6 @@
 package com.jackie.flash_buy.contracts.plan;
 
+import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
 
 /**
@@ -12,4 +13,6 @@ public interface TypeListener {
     void add(LineItem lineItem, boolean refresh);
     //删除预购清单
     void removeItem(LineItem lineItem, boolean refresh);
+    //打开外部列表
+    void openItemActivity(Item item);
 }

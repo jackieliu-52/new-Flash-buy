@@ -30,8 +30,5 @@
         android:layout_height="match_parent">
 
     </com.jackie.flash_buy.ui.commonRecyclerView.CommonRecycleView>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        />
+
 </LinearLayout>

@@ -21,6 +21,7 @@ import com.dexafree.materialList.card.action.TextViewAction;
 import com.dexafree.materialList.view.MaterialListAdapter;
 import com.dexafree.materialList.view.MaterialListView;
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.Item;
@@ -30,6 +31,8 @@ import com.jackie.flash_buy.model.TwoTuple;
 import com.jackie.flash_buy.ui.SmoothCheckBox;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerAdapter;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerViewHolder;
+import com.jackie.flash_buy.utils.Constant;
+import com.jackie.flash_buy.utils.InternetUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
@@ -81,8 +84,14 @@ public class OrderActivity extends AppCompatActivity {
         }
         init();
 
+
         mLoadingView = (LoadingView) findViewById(R.id.loading_view);
-        mLoadingView.addAnimation(Color.parseColor("#OBBCD6"),R.drawable.ic_checkout,LoadingView.FROM_LEFT);
+        if(mOrder.getStatus() == 1){
+            //表示已经支付了,所以不需要支付了
+            mLoadingView.setVisibility(View.INVISIBLE);
+        }
+
+        mLoadingView.addAnimation(Color.parseColor("#5E88FC"),R.drawable.ic_checkout,LoadingView.FROM_LEFT);
         mLoadingView.addAnimation(Color.parseColor("#3FB837"),R.drawable.ic_check_right,LoadingView.FROM_LEFT);
         //also you can add listener for getting callback (optional)
         mLoadingView.addListener(new LoadingView.LoadingListener() {
@@ -135,7 +144,8 @@ public class OrderActivity extends AppCompatActivity {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         finish();
-                        //通知服务器
+                        //通知服务器,告诉他完成付款了
+                        EventBus.getDefault().post(new InternetEvent("", Constant.CHECKE_OUT));
                     }
                 })
                 .show();

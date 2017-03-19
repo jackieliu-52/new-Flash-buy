@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
@@ -40,9 +41,12 @@ public class ConnectActivity extends AppCompatActivity {
         Intent intent = getIntent();
         text = intent.getExtras().getString("1");
 
-
+        Log.i("temp2",text);
         String[] temp = text.split(":");
         text = temp[2];
+        Log.i("temp0",temp[0]);
+        Log.i("temp1",temp[1]);
+        Log.i("temp2",temp[2]);
         mContext = this;
         foundDevice=(ImageView)findViewById(R.id.foundDevice);
         rippleBackground = (RippleBackground)findViewById(R.id.content);

@@ -58,4 +58,8 @@ public interface Constant {
      *
      */
     public static final int REQUEST_Bulk = 0X800;
+
+    public static final int CHECKE_OUT = 0X900;
+
+    public static final int LOG_IN = 0X1000;
 }

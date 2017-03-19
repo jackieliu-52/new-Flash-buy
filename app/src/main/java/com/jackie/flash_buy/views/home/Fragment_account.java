@@ -1,5 +1,6 @@
 package com.jackie.flash_buy.views.home;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,14 @@ import android.widget.TextView;
 
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
+import com.jackie.flash_buy.bus.LogEvent;
+import com.jackie.flash_buy.model.User;
+import com.jackie.flash_buy.utils.InternetUtil;
+import com.jackie.flash_buy.views.setting.SettingActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -44,6 +53,12 @@ public class Fragment_account extends BaseFragment {
     FloatingActionButton commitFab;
     CircleImageView avatar;
     TextView tvLogin;
+
+
+    Spinner spIp;
+    //账户余额
+    private TextView tvMoney;
+    private View Vmoney;  //
 
     private String name;
     private String sex;
@@ -121,6 +136,7 @@ public class Fragment_account extends BaseFragment {
                 String[] sexes = getResources().getStringArray(R.array.sex);
                 sex = sexes[pos];
                 MainActivity.user.setSex(sex);
+
             }
 
             @Override
@@ -129,6 +145,30 @@ public class Fragment_account extends BaseFragment {
             }
         });
 
+        //设置默认IP,这里暂时不对性别进行保存
+        spIp.setSelection(0,true);
+        spIp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                String[] ips = getResources().getStringArray(R.array.ip);
+                InternetUtil.ipAddress = ips[pos];  //设置ip地址
+                InternetUtil.root = "http://"+ InternetUtil.ipAddress +":443/Flash-Buy/";
+                InternetUtil.refreshIp(); //刷新一下
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //do nothing
+            }
+        });
+
+        //进入余额管理
+        Vmoney.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         return view;
     }
@@ -139,13 +179,16 @@ public class Fragment_account extends BaseFragment {
      */
     private void bindView(View view){
         spSex = (Spinner)view.findViewById(R.id.sp_sex);
+        spIp = (Spinner)view.findViewById(R.id.sp_ip);
+        Vmoney = view.findViewById(R.id.ll_money);
         etName=(EditText)view.findViewById(R.id.et_name);
         etMail=(EditText)view.findViewById(R.id.et_mail);
         commitFab = (FloatingActionButton)view.findViewById(R.id.settingFab);
         commitFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //进入设置页面 ....
+                //进入设置页面
+                startActivity(new Intent(mContext, SettingActivity.class));
             }
         });
         avatar = (CircleImageView)view.findViewById(R.id.avatar);
@@ -155,15 +198,26 @@ public class Fragment_account extends BaseFragment {
             public void onClick(View view) {
                 //进入登录页面
                 startActivity(new Intent(mContext,LogInActivity.class));
+
             }
         });
+        tvMoney = (TextView) view.findViewById(R.id.tv_money);
         refresh();
     }
 
 
     public void refresh(){
+        MainActivity.user = getUser();
         //未登录
         if(!MainActivity.isLogin){
+            tvLogin.setText("登录");
+            tvLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //进入登录页面
+                    startActivity(new Intent(mContext,LogInActivity.class));
+                }
+            });
             view.findViewById(R.id.llDetails).setVisibility(View.INVISIBLE);
             view.findViewById(R.id.llName).setVisibility(View.INVISIBLE);
             tvLogin.setVisibility(View.VISIBLE);
@@ -222,11 +276,36 @@ public class Fragment_account extends BaseFragment {
             }
         }
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
 
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
 
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void plan(LogEvent event){
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                refresh();//刷新一下
+            }
+        });
+    }
 
-
+    public User getUser(){
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("jackieLiu", Context.MODE_PRIVATE);
+        String id = sharedPreferences.getString("id", "");
+        String name = sharedPreferences.getString("name", "");
+        String mail = sharedPreferences.getString("mail", "");
+        return  new User(mail,id,name);
+    }
     @Override
     public String toString() {
         return "fragment_account";

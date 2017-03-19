@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import immortalz.me.library.TransitionsHeleper;
 
 /**
  * Created by Jack on 2016/11/1.
@@ -180,9 +179,7 @@ public class HomeFragment extends BaseFragment {
                     @Override
                     public void onItemClick(View view, int position) {
                         PlanActivity.sMarkt = markets.get(position);
-                        TransitionsHeleper.startAcitivty((Activity) mContext, PlanActivity.class,
-                                view.findViewById(R.id.ivMarketLogo),
-                                PlanActivity.sMarkt.getLogo());
+                        startActivity(new Intent(mContext,PlanActivity.class));
                     }
 
                     @Override
@@ -371,7 +368,7 @@ public class HomeFragment extends BaseFragment {
      * @return
      */
     private CommonRecyclerAdapter getAnotherAdapter(final List<TwoTuple<Boolean,Item>> items){
-        return new CommonRecyclerAdapter<TwoTuple<Boolean, Item>>(mContext,R.layout.plan_items,items) {
+        return new CommonRecyclerAdapter<TwoTuple<Boolean, Item>>(mContext,R.layout.home_plan_items,items) {
             @Override
             public void convert(final CommonRecyclerViewHolder holder, TwoTuple<Boolean, Item> o) {
                 Item item = o.second;

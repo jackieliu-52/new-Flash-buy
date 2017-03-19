@@ -19,7 +19,7 @@ public class LocationHelper {
 
     static double[][] positions;
     static {
-        positions = new double[][] { {524,326}, {122,471},{108,192}}; //三个beacon的位置
+        positions = new double[][] {{645,740}, {80, 520}, {645, 235}}; //三个beacon的位置
     }
 
     /**
@@ -68,6 +68,7 @@ public class LocationHelper {
         //knn没有找到好的结果，直接用三角定位结果
         if(l1[0] == -1 && l1[1] == -1)
             return l2;
+        //再根据历史记录判定
         result = likely(l1) > likely(l2) ? l2 : l1;
         return result;
     }

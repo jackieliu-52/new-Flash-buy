@@ -22,7 +22,7 @@ public abstract class CommonRecyclerAdapter<T> extends RecyclerView.Adapter<Comm
         mContext = context;
         mData = data;
         mItemLayoutID = itemLayoutID;
-        selected = "蔬菜";
+        selected = "init";
     }
 
     public List<T> getData() {

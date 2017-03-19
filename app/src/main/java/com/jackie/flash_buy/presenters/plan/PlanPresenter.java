@@ -68,10 +68,11 @@ public class PlanPresenter implements PlanContract.Presenter {
         mLineItems.add(new LineItem(new Item("三只松鼠夏威夷果","零食区域","0202","http://obsyvbwp3.bkt.clouddn.com/134.JPG","夏威夷公司",9.00,"一瓶"),3));
         mLineItems.add(new LineItem(new Item("乐事无限薯片三连罐","零食区域","0303","http://obsyvbwp3.bkt.clouddn.com/135.JPG","乐事薯片",4.00,"DT3200"),3));
         mLineItems.add(new LineItem(new Item("Aji泰氏风味榴莲饼","零食区域","0303","http://obsyvbwp3.bkt.clouddn.com/136.JPG","心相印",4.00,"DT3200"),3));
+        mLineItems.add(new LineItem(new Item("波利海苔","零食区域","0252","http://obsyvbwp3.bkt.clouddn.com/333.jpg","心相印",5,"无"),3));
+        mLineItems.add(new LineItem(new Item("奥利奥","零食区域","012","http://obsyvbwp3.bkt.clouddn.com/555.jpg","中国",6,"无"),3));
 
 
         mLineItems.add(new LineItem(new Item("怡宝矿泉水", "酒水饮料", "1101", "http://obsyvbwp3.bkt.clouddn.com/yibao.jpg", "怡宝有限公司", 2, "555ml"),1));
-        mLineItems.add(new LineItem(new Item("安慕希酸奶", "酒水饮料", "133", "http://obsyvbwp3.bkt.clouddn.com/133.jpg", "伊利公司", 3.22, "205g"),1));
         Item test3 = new Item();
         test3.setName("养乐多");
         test3.setPrice(11);

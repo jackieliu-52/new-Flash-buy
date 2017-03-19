@@ -16,7 +16,8 @@ import java.net.URL;
  */
 public class InternetUtil {
 //    public static String root = "http://155o554j78.iok.la:49817/Flash-Buy/";
-    public static String root = "http://192.168.191.1:443/Flash-Buy/";   //局域网测试
+    public static String ipAddress  = "192.168.191.1"; //默认ip地址
+    public static String root = "http://"+ ipAddress +":443/Flash-Buy/";   //局域网测试
     public static String args1 = "Cart/Data?cartNumber=9&userId=9";
 //    public static String args2 = "bulk?userId=9&cartNumber=9";
     public static String args3 = "Cart/Login?uuid=";
@@ -27,6 +28,12 @@ public class InternetUtil {
     public static String logInUrl = root + args3;
 
     public static String searchUrl =  root + "search?name=";
+
+    public static void refreshIp(){
+        cartUrl = root + args1;
+        logInUrl = root + args3;
+        searchUrl =  root + "search?name=";
+    }
     /**
      *  post json数据给服务器端，如果接收成功并返回正确结果，那么该函数返回true
      * @param json

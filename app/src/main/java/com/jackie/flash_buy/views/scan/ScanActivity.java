@@ -24,6 +24,7 @@ import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.ui.RevealBackgroundView;
 import com.jackie.flash_buy.ui.ScanImageView;
 import com.jackie.flash_buy.utils.Constant;
+import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.utils.zxing.ScanListener;
 import com.jackie.flash_buy.utils.zxing.ScanManager;
 import com.jackie.flash_buy.utils.zxing.decode.DecodeThread;
@@ -33,9 +34,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import immortalz.me.library.TransitionsHeleper;
-import immortalz.me.library.bean.InfoBean;
-import immortalz.me.library.method.ColorShowMethod;
 
 /**
  * Created by Jack on 2016/8/12.
@@ -128,7 +126,6 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         iv_light.setOnClickListener(this);
 
         authorize_return.setOnClickListener(this);
-        //构造出扫描管理器
         scanManager = new ScanManager(this, scanPreview, scanContainer, scanCropView, scanLine, scanMode,this);
 
         vRevealBackground = (RevealBackgroundView) findViewById(R.id.vRevealBackground);
@@ -164,15 +161,24 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 //        tv_scan_result.setVisibility(View.VISIBLE);
 //        //rawResult.getText()就是扫描结果，条形码就是一串数字
 //        tv_scan_result.setText("结果："+rawResult.getText());
+
+        Log.i("Scan",rawResult.getText());
         if(rawResult.getText().contains("cartNumber")){
             Intent intent = new Intent(ScanActivity.this, ConnectActivity.class);
             Bundle bundle1 = new Bundle();
+            Log.i("Scan",rawResult.getText());
             bundle1.putString("1",rawResult.getText());
             intent.putExtras(bundle1);
             startActivity(intent);
+//            String[] temp = rawResult.getText().split(":");
+//            String text = temp[2];
+//            Log.i("Scan",text);
+//            EventBus.getDefault().post(new InternetEvent(text,Constant.LOG_IN));
+            finish(); //关闭
         }
         else {
             EventBus.getDefault().post(new InternetEvent(rawResult.getText(), Constant.REQUEST_INTERNET_BAR));
+            finish(); //关闭
         }
         finish(); //关闭
     }

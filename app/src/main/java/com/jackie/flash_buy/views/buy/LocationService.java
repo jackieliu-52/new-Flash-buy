@@ -6,12 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
+import com.jackie.flash_buy.bus.PlanBuyEvent;
 import com.jackie.flash_buy.bus.UiEvent;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
@@ -38,16 +43,17 @@ import java.util.TimerTask;
 /**
  * 用于定位的Service，同时也可以定时获取Cart信息
  */
-public class LocationService extends IntentService {
+public class LocationService extends IntentService   {
     private static final String ACTION_LOCATION = "Location!";
     public static List<Double> distances = new ArrayList<>(); //与各个ibeacon之间的距离
     private static final Double MAX = Double.MAX_VALUE;  //不能检测时的距离
     public static Context mContext;
+    public static SensorEventListener mSensorListener;
 
     //圆心和距离
     static double[][] positions;
     static double[] dts;
-    static RectF mRectF, mRectF1, mRectF2, mRectF3, mRectF4; //四个矩形，用于防止判定定位在货架上
+    static RectF mRectF, mRectF1, mRectF2, mRectF3, mRectF4, mRectF5,mRectF6; //6个矩形，用于防止判定定位在货架上
 
     private static List<iBeaconView> beacons; //所有beacons
     private static List<Round> mRounds;  //所有的rounds
@@ -60,6 +66,9 @@ public class LocationService extends IntentService {
     private int times;  //打印次数
     private boolean test; //测试
     private TimerTask mTimerTask; //测试
+    private boolean isBlueOpen; //蓝牙是否打开
+
+
 
     public LocationService() {
         super("LocationService");
@@ -71,8 +80,13 @@ public class LocationService extends IntentService {
         Intent intent = new Intent(context, LocationService.class);
         intent.setAction(ACTION_LOCATION);
         context.startService(intent);
+        //初始化beacon
         initBeacon();
+        //初始化加速度传感器
+       // initSensor();
     }
+
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -82,7 +96,7 @@ public class LocationService extends IntentService {
                 //开始定位
                 Log.d("LocationService", "开始定位了");
                 timer = new Timer();
-                timerTask = getTimerTask();
+                timerTask = timerTask();
                 timer.schedule(timerTask, 0, 2500);  //2.5s进行一次定位操作
             }
         }
@@ -101,17 +115,23 @@ public class LocationService extends IntentService {
         Log.e("LocationService", "onDestroy");
     }
 
-    private TimerTask getTimerTask() {
+    /**
+     * 定时执行的任务
+     * @return
+     */
+    private TimerTask timerTask() {
         return new TimerTask() {
             @Override
             public void run() {
                 //testCart();
                 if(!MainActivity.TESTMODE) {
-                    getCart();
+                    getCart();     //如果不是测试模式，开启购物车刷新
                 }
-                EventBus.getDefault().post(new UiEvent("cart"));  //刷新UI
+                //发送定位信息
+
                 //如果蓝牙打开了，才进行蓝牙连接
-                if(BluetoothManager.isBluetoothEnabled()) {
+                isBlueOpen = BluetoothManager.isBluetoothEnabled();
+                if(isBlueOpen) {
                     getLocation();
                 }else{
                     //只提示用户一次
@@ -137,6 +157,7 @@ public class LocationService extends IntentService {
 
 
         MainActivity.cart.add(lineItem);
+        EventBus.getDefault().post(new UiEvent("cart"));  //刷新购物车的UI
     }
     private void getLocation(){
         //这里面进行定位操作
@@ -156,7 +177,7 @@ public class LocationService extends IntentService {
 
 
             if (centroid != null) {
-                Log.i("LocationService", "定位 sucess");
+                Log.i("LocationService", "定位 x:" + centroid[0] + "   y:" + centroid[1]);
                 if (!mRectF.contains((float) centroid[0], (float) centroid[1])) {
                     //如果定位结果超出地图的范围，那么不绘制
                     return;
@@ -166,30 +187,44 @@ public class LocationService extends IntentService {
                 //如果定位在货架上
                 if (mRectF1.contains((float) centroid[0], (float) centroid[1])) {
                     //如果在第一个矩形中
-                    Fragment_map.location = new PointF(55, 299);
+                    Fragment_map.location = new PointF(50,425);
                 }
                 if (mRectF2.contains((float) centroid[0], (float) centroid[1])) {
                     //如果在第2个矩形中
-                    Fragment_map.location = new PointF(270, 300);
+                    Fragment_map.location = new PointF(190, 445);
                 }
                 if (mRectF3.contains((float) centroid[0], (float) centroid[1])) {
                     //如果在第3个矩形中
-                    Fragment_map.location = new PointF(400, 300);
+                    Fragment_map.location = new PointF(270, 435);
                 }
                 if (mRectF4.contains((float) centroid[0], (float) centroid[1])) {
                     //如果在第4个矩形中
-                    Fragment_map.location = new PointF(640, 300);
+                    Fragment_map.location = new PointF(500, 430);
+                }
+                if (mRectF5.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第5个矩形中
+                    Fragment_map.location = new PointF(720, 400);
+                }
+                if (mRectF6.contains((float) centroid[0], (float) centroid[1])) {
+                    //如果在第5个矩形中
+                    Fragment_map.location = new PointF(880, 300);
                 }
             } else {
                 Log.i("LocationService", "定位错误");
             }
 
+
             //如果有定位信息，就发送给服务器
             if (Fragment_map.location != null) {
                 InternetUtil.postStr("", InternetUtil.args4 + "=9&x=" + Fragment_map.location.x + "&y=" + Fragment_map.location.y);
 
+                //同时需要发送给mapFragment,进行定位操作
+                EventBus.getDefault().post(new PlanBuyEvent("location",0,0));
             }
         } else {
+
+
+           // EventBus.getDefault().post(new PlanBuyEvent("location",0,0));
             Log.i("LocationService", "有ibeacon没有定位信息");
             EventBus.getDefault().post(new MessageEvent("定位失败！请检查蓝牙是否打开"));
         }
@@ -198,7 +233,11 @@ public class LocationService extends IntentService {
      * 从服务器拉取Cart信息
      */
     private void getCart(){
-        EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart));
+
+        EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart)); //获取购物车信息
+        Log.i("LocationService","发送刷新指令");
+      //  Log.i("ipAddress",InternetUtil.ipAddress );
+        EventBus.getDefault().post(new UiEvent("cart"));  //刷新购物车的UI
     }
 
     /**
@@ -210,13 +249,16 @@ public class LocationService extends IntentService {
         for (int i = 0; i < 3; i++) {
             distances.add(MAX);
         }
-        positions = new double[][]{{524, 326}, {122, 471}, {108, 192}}; //三个beacon的位置
+        //645,740
+        //80, 520
+        //645, 235
+        positions = new double[][]{{645,740}, {80, 520}, {645, 235}}; //三个beacon的位置
         iBeaconView iBeaconView1 = new iBeaconView();
-        iBeaconView1.location = new PointF(524, 326);
+        iBeaconView1.location = new PointF(645, 740);
         iBeaconView iBeaconView2 = new iBeaconView();
-        iBeaconView2.location = new PointF(122, 471);
+        iBeaconView2.location = new PointF(80, 520);
         iBeaconView iBeaconView3 = new iBeaconView();
-        iBeaconView3.location = new PointF(108, 192);
+        iBeaconView3.location = new PointF(645, 235);
         beacons.add(iBeaconView1);
         beacons.add(iBeaconView2);
         beacons.add(iBeaconView3);
@@ -225,11 +267,14 @@ public class LocationService extends IntentService {
         mRounds.add(new Round(iBeaconView2.location.x, iBeaconView2.location.y, (float) MAX.doubleValue()));
         mRounds.add(new Round(iBeaconView3.location.x, iBeaconView3.location.y, (float) MAX.doubleValue()));
 
-        mRectF = new RectF(0, 0, 750, 760);    //整体
-        mRectF1 = new RectF(120, 0, 175, 600);  //左1
-        mRectF2 = new RectF(176, 0, 230, 600);  //左2
-        mRectF3 = new RectF(430, 50, 485, 650);  //右1
-        mRectF4 = new RectF(486, 50, 540, 650); //右2
+        mRectF = new RectF(0, 0, 990, 890);    //整体
+        mRectF1 = new RectF(60, 130, 120, 720);  //左1
+        mRectF2 = new RectF(120, 130, 180, 720);  //左2
+        mRectF3 = new RectF(360, 130, 420, 720);  //右1
+        mRectF4 = new RectF(420, 130, 480, 720); //右2
+        mRectF5 = new RectF(740, 44, 800, 670); //右3
+        mRectF6 = new RectF(800, 44, 860, 670); //右3
+
 
 
         SKYBeaconManager.getInstance().init(mContext);
@@ -445,6 +490,7 @@ public class LocationService extends IntentService {
         timer.schedule(mTimerTask, 0, 500);  //0.5s进行指纹打印
 
     }
+
 
 }
 

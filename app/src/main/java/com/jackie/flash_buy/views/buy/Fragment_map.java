@@ -47,8 +47,6 @@ import me.shaohui.bottomdialog.BottomDialog;
  * 地图展示的Fragment
  *
  *
- *
- *
  */
 public class Fragment_map extends android.support.v4.app.Fragment  implements SensorEventListener  {
     final private String TAG = "Fragment_map";
@@ -59,7 +57,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     private static final Double MAX = Double.MAX_VALUE;  //不能检测时的距离
 
     private MapView mapView;
-    private ImageButton mImageView;
+    private ImageButton mImageView;     //显示购买清单
 
     private MarkLayer markLayer;
     private RouteLayer routeLayer;
@@ -74,15 +72,15 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     public static PointF location; //当前定位的坐标
 
 
-    private Timer timer = null;
-    private TimerTask timerTask = null;
 
-
-    private boolean dingweing; //看看是否定位了
     private boolean visible; //是否可见
+    public static  int first ;
     private boolean openSensor = true; //是否打开传感器,默认打开
     private SensorManager sensorManager; //传感器
+    static float degree;
+    static float mapDgree = 90;
 
+    private static Sensor mAccelerometer;
 
 
     public static List<Integer> nums = new ArrayList<>();  //各个区域的数量
@@ -117,7 +115,8 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     public void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
-        sensorManager.unregisterListener(this); //关闭传感器
+        //暂时不关闭
+      //  sensorManager.unregisterListener(this); //关闭传感器
 
     }
 
@@ -130,6 +129,15 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
 
 
         initMapDatas(); //初始化地图数据
+
+        //注册传感器
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+    //    mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor
+                (Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
+//        //注册第2个传感器
+//        sensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+
 
         mapView = (MapView) view.findViewById(R.id.mapview);
         mImageView = (ImageButton) view.findViewById(R.id.ivChanggou);
@@ -158,12 +166,6 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
             }
         });
         loadMap();
-        //注册传感器
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor
-                (Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
-
-        //震动测试
-  //    VibrateUtil.vibrate(mContext,1000);
 
 
         return view;
@@ -201,9 +203,9 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
                         PointF target = new PointF(marks.get(num).x, marks.get(num).y);       //获得被触摸的点
 
                         chosed.set(num,true);  //设置被选中
-                        //marks.get(4)为起点
+                        //marks.get(3)为起点
                         List<Integer> routeList = MapUtils.getShortestDistanceBetweenTwoPoints
-                                (marks.get(4), target, nodes, nodesContract);
+                                (marks.get(3), target, nodes, nodesContract);
                         routeLayer.setNodeList(nodes);
                         routeLayer.setRouteList(routeList);
                         mapView.refresh();
@@ -211,27 +213,24 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
                 });
 
 
-                locationLayer = new LocationLayer(mapView, new PointF(650, 760));  //起点
+                locationLayer = new LocationLayer(mapView, new PointF(888, 830));  //起点
                 locationLayer.setOpenCompass(true);
-                locationLayer.setCompassIndicatorCircleRotateDegree(60);  //罗盘
-                locationLayer.setCompassIndicatorArrowRotateDegree(-30);  //方向
+
+                locationLayer.setCompassIndicatorCircleRotateDegree(mapDgree);  //罗盘
+                locationLayer.setCompassIndicatorArrowRotateDegree(-180);  //方向
                 mapView.addLayer(locationLayer);
 
 
                 mapView.refresh();   //draw地图
                 Log.i("test","233");
                 loadMapDetails();  //加载细节
-                if(!dingweing) {
-                    startTimer(); //开始
 
-                }
             }
 
             @Override
             public void onMapLoadFail() {
             }
         });
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
     }
     /**
      * 加载地图数据
@@ -239,6 +238,7 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
     private void initMapDatas(){
         nodes = TestData.getNodesList();
         nodesContract = TestData.getNodesContactList();
+
         marks = TestData.getMarks();    //点
         marksName = TestData.getMarksName();  //点的名字
 
@@ -276,54 +276,19 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
             //相当于Fragment的onResume
             Log.i(TAG,"v");
             visible = true;
-            //如果不再定位中而且需要定位
-            if(!dingweing && MainActivity.status == 1){
-                startTimer(); //开始定位
-            }
+            first++;
+
         } else {
             //相当于Fragment的onPause
             Log.i(TAG,"in");
             visible = false;
-            //定位中
-            if(dingweing) {
-                stopTimer();  //关闭计时器
-            }
+
 
         }
     }
 
-    private void startTimer() {
-        stopTimer();
-        dingweing = true;
-        //Log.i(TAG, "开始定位233");
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-               if(visible){
-                   //定位
-                   if(location != null){
-                       Log.i("location","x:"+ location.x+"   y:" + location.y);
-                       locationLayer.setCurrentPosition(location);
-                       mapView.refresh();           //刷新,可以不在UI线程中执行
-                   }
-               }
-            }
-        };
-        timer.schedule(timerTask, 0, 2500);  //2.5s进行一次定位操作
-    }
 
-    private void stopTimer() {
-        dingweing = false;
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-        if (timerTask != null) {
-            timerTask.cancel();
-            timerTask = null;
-        }
-    }
+
 
 
 
@@ -336,22 +301,27 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
             while (true){
                 if( mapView.isMapLoadFinish()){
                     Log.i("Test","MapLoadFinish");
-
-                    //注册传感器
-                    sensorManager.registerListener(this, sensorManager.getDefaultSensor
-                            (Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
-
-                    startTimer();  //开始定位
-
                     setMapDetail();   //设置各个区域的数字
 
                     //这里只进行一次路径规划
                     pathPlanning();
-
                     mapView.refresh();   //draw地图
-                    break; //跳出循环
+                    return; //退出
                 }
             }
+        }
+
+
+        if(planBuyEvent.message.equals("location") && visible){
+            //Log.i("定位", degree + "度");
+            //圆的位置
+            locationLayer.setCompassIndicatorCircleRotateDegree(-degree);
+            locationLayer.setCompassIndicatorArrowRotateDegree(mapDgree + mapView
+                    .getCurrentRotateDegrees() + degree);   //箭头的位置
+
+            locationLayer.setCurrentPosition(location);
+
+            mapView.refresh();
         }
     }
 
@@ -361,17 +331,31 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
+//        if(visible){
+//            //获得加速度传感器
+//           // Log.d("linc", "value size: " + event.values.length);
+//            float xValue = event.values[0];// Acceleration minus Gx on the x-axis
+//            float yValue = event.values[1];//Acceleration minus Gy on the y-axis
+//            float zValue = event.values[2];//Acceleration minus Gz on the z-axis
+//           // Log.i("加速度：","x轴： "+xValue+"  y轴： "+yValue+"  z轴： "+zValue);
+//        }
         if (mapView.isMapLoadFinish() && openSensor && visible) {
             float mapDegree = 0; // the rotate between reality map to northern
-            float degree = 0;
+
             if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
                 degree = event.values[0];
             }
 
+            //圆的位置
             locationLayer.setCompassIndicatorCircleRotateDegree(-degree);
-            locationLayer.setCompassIndicatorArrowRotateDegree(mapDegree + mapView
-                    .getCurrentRotateDegrees() + degree);
+            locationLayer.setCompassIndicatorArrowRotateDegree(mapDgree + mapView
+                    .getCurrentRotateDegrees() + degree);   //箭头的位置
+
+            locationLayer.setCurrentPosition(location);
+
             mapView.refresh();
+
+
         }
     }
 
@@ -384,11 +368,12 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         nums.set(2,Integer.valueOf(0));
         //遍历
         for(LineItem item: MainActivity.realPlanBuy){
+            //pid作为区域的标志位
             switch (item.getItem().getPid()){
-                case "01":
+                case "零食区域":
                     nums.set(0,Integer.valueOf(nums.get(0).intValue() + 1));
                     break;
-                case "06":
+                case "":
                     nums.set(1,Integer.valueOf(nums.get(1).intValue() + 1));
                     break;
                 case "09":
@@ -444,9 +429,9 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
             default:
                 bmp3 =  BitmapFactory.decodeResource(getResources(), R.mipmap.n0);
         }
-        bitmapLayer1.setBitmap(bmp1);
-        bitmapLayer2.setBitmap(bmp2);
-        bitmapLayer3.setBitmap(bmp3);
+      //  bitmapLayer1.setBitmap(bmp1);
+       // bitmapLayer2.setBitmap(bmp2);
+       // bitmapLayer3.setBitmap(bmp3);
     }
 
 
@@ -476,22 +461,22 @@ public class Fragment_map extends android.support.v4.app.Fragment  implements Se
         }
 
         List<PointF> list = new ArrayList<>();
-        list.add(marks.get(4));
-        list.add(marks.get(5));
+        list.add(marks.get(3));
+     //   list.add(marks.get(5));
         if(flag1) {
+            list.add(marks.get(1));
+            MarkLayer.chosed.set(1,true);
             list.add(marks.get(2));
             MarkLayer.chosed.set(2,true);
-            list.add(marks.get(3));
-            MarkLayer.chosed.set(3,true);
         }
         if(flag2) {
             list.add(marks.get(0));
             MarkLayer.chosed.set(0,true);
         }
-        if(flag3){
-            list.add(marks.get(1));
-            MarkLayer.chosed.set(1,true);
-        }
+//        if(flag3){
+//            list.add(marks.get(1));
+//            MarkLayer.chosed.set(1,true);
+//        }
         List<Integer> routeList = MapUtils.getBestPathBetweenPoints(list, nodes,
                 nodesContract);
         routeLayer.setNodeList(nodes);

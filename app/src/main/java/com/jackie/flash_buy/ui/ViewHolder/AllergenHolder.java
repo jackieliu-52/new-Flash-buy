@@ -7,6 +7,8 @@ import android.widget.TextView;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.model.Allergen;
+import com.jackie.flash_buy.views.setting.SettingActivity;
+import com.jackie.flash_buy.views.setting.SettingActivity;
 
 
 /**
@@ -23,15 +25,21 @@ public class AllergenHolder extends ChildViewHolder {
         mIngredientTextView = (TextView) itemView.findViewById(R.id.allergen_textview);
         mImageView = (ImageView) itemView.findViewById(R.id.allergen_check);
 
-        mImageView.setOnClickListener(new View.OnClickListener() {
+        itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                SettingActivity.isChanged = true;  //更改
+                
                 if(mAllergen.isChosed){
                     mAllergen.isChosed = false;
+                    
+
+
                     mImageView.setImageResource(R.drawable.ic_cancel_black_24dp);
                 }else {
                     mAllergen.isChosed = true;
+                    //加入过敏源中
+                    SettingActivity.Allergens = mAllergen;
                     mImageView.setImageResource(R.drawable.ic_done_black_18dp);
                 }
             }

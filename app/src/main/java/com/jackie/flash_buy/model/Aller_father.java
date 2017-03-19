@@ -21,6 +21,7 @@ public class Aller_father  implements ParentListItem {
 
     private String name;
     private int id;  //1表示奶类，一次类推
+    private List<Allergen> mAllergens;
 
 
     public int getId() {
@@ -38,9 +39,6 @@ public class Aller_father  implements ParentListItem {
     public void setName(String name) {
         this.name = name;
     }
-
-    private List<Allergen> mAllergens;
-
     public Aller_father(List<Allergen> allergens) {
         mAllergens = allergens;
     }

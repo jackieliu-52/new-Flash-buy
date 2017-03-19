@@ -20,7 +20,7 @@ public class Item implements Parcelable {
     private int discount;  //折扣，10表示没有折扣，5表示五折
     private boolean isStar;  //是否被收藏，True表示被收藏了
     private String source; //来源，中国还是外国?
-    private String category = "未知"; //种类
+    private String category; //种类
     private int storage = 0;  //存储量,暂时作为小类的ID使用
 
     public int getStorage() {

@@ -72,13 +72,18 @@ dependencies {
     compile 'me.shaohui:bottomdialog:1.1.9'
     //dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.0.1'
-    //动画
-    compile 'me.immortalz:transitionhelper:1.0.4'
+
     //search
     compile 'com.github.arimorty:floatingsearchview:2.0.3'
     //floatingView
     compile 'com.github.recruit-lifestyle:FloatingView:2.0'
     //loading
     compile 'io.saeid:fab-loading:1.0.0'
+    //可以扩展的recyclerView
+    compile 'com.bignerdranch.android:expandablerecyclerview:2.1.1'
+    //测试
+    testCompile "org.robolectric:robolectric:3.1"
+    testCompile 'org.mockito:mockito-core:2.0.90-beta'
+
     compile project(':map')
 }
