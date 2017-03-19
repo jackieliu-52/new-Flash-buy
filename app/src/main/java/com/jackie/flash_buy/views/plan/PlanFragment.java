@@ -1,6 +1,7 @@
 package com.jackie.flash_buy.views.plan;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -285,6 +286,9 @@ public class PlanFragment extends BaseFragment implements PlanContract.View,Type
     @Override
     public void openItemActivity(Item item) {
         Log.i(TAG,"商品名称为"+item.getName());
+        Intent intent = new Intent(getActivity(),DetailActivity.class);
+        intent.putExtra("item",item);
+        startActivity(intent);
     }
 
 

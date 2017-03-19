@@ -79,6 +79,10 @@
                   android:label=""
                   android:theme="@style/AppTheme233"/>
 
+        <activity android:name=".views.plan.DetailActivity"
+                  android:label=""
+                  android:theme="@style/translucent"/>
+
         <activity android:name=".views.order.OrderActivity"
                   android:theme="@style/AppTheme233"/>
 
