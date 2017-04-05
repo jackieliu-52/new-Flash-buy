@@ -5,6 +5,11 @@ package com.jackie.flash_buy.utils;
  */
 public interface Constant {
     /**
+     * 查询商品的APIkey
+     */
+    public static final String Bar_APIKEY="ab7d6eef4f735da9892ee2c6682f5088";
+
+    /**
      * 二维码请求的type
      */
     public static final String REQUEST_SCAN_TYPE="type";

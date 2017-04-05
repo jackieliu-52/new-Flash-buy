@@ -4,13 +4,13 @@ apply plugin: 'com.neenbedankt.android-apt'
 android {
     sourceSets.main.jniLibs.srcDirs = ['libs']  //Jni导入
 
-    compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "com.jackie.flash_buy"
-        minSdkVersion 19
-        targetSdkVersion 24
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "2.0"
     }
@@ -41,7 +41,7 @@ dependencies {
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
-    //listView
+    //listView，完成2级联动
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     //使用图标库
     compile 'com.mikepenz:iconics-core:2.8.1@aar'
@@ -54,13 +54,13 @@ dependencies {
     //butterKnife
     compile 'com.jakewharton:butterknife:8.0.1'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
-    //连接手机的库
+    //连接手机的动画效果库库
     compile 'com.skyfishjy.ripplebackground:library:1.0.1'
     //新的fab
     compile 'com.lzp.floatingactionbutton:floatingactionbuttonplus:1.0.0'
     //图片轮播
     compile 'com.youth.banner:banner:1.4.1'
-    //picasso
+    //picasso，为实现圆形图片
     compile 'com.squareup.picasso:picasso:2.5.2'
     //底部
     compile 'com.flipboard:bottomsheet-core:1.5.1'
@@ -73,8 +73,7 @@ dependencies {
     //dialogs
     compile 'com.afollestad.material-dialogs:core:0.9.0.1'
 
-    //search
-    compile 'com.github.arimorty:floatingsearchview:2.0.3'
+
     //floatingView
     compile 'com.github.recruit-lifestyle:FloatingView:2.0'
     //loading
@@ -85,5 +84,12 @@ dependencies {
     testCompile "org.robolectric:robolectric:3.1"
     testCompile 'org.mockito:mockito-core:2.0.90-beta'
 
+    //rxjava+retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.2.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.2.0'
+
+    compile "io.reactivex.rxjava2:rxjava:2.0.7"
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile project(':map')
 }

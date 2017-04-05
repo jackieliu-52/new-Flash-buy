@@ -1,8 +1,11 @@
-package com.jackie.flash_buy.utils;
+package com.jackie.flash_buy.utils.network;
 
 
 
 import com.jackie.flash_buy.bus.MessageEvent;
+import com.jackie.flash_buy.model.InternetItem;
+import com.jackie.flash_buy.model.Order;
+import com.jackie.flash_buy.utils.Util;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -10,28 +13,59 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * 专门处理网络请求的工具类
  */
 public class InternetUtil {
 //    public static String root = "http://155o554j78.iok.la:49817/Flash-Buy/";
-    public static String ipAddress  = "192.168.191.1"; //默认ip地址
-    public static String root = "http://"+ ipAddress +":443/Flash-Buy/";   //局域网测试
-    public static String args1 = "Cart/Data?cartNumber=9&userId=9";
-//    public static String args2 = "bulk?userId=9&cartNumber=9";
-    public static String args3 = "Cart/Login?uuid=";
-    public static String args4 = "Cart/MapPoint?userId";
+    public static String baseUrl = "192.168.191.1"; //默认ip地址
+    public static String root = "http://"+ baseUrl +":443/Flash-Buy/";   //局域网测试
+    public final static String args_cart = "Cart/Data?cartNumber=9&userId=9";
+    public final static String args_checkout = "Cart/Data?cartNumber=9&userId=9";  //暂时用post来处理结账功能
+    public final static String args_login = "Cart/Login?uuid=";
+    public final static String args_location = "Cart/MapPoint?userId";
 
-    public static String cartUrl = root + args1;
-//    public static String bulkUrl = root + args2;
-    public static String logInUrl = root + args3;
+
+    public static String cartUrl = root + args_cart;
+    public static String logInUrl = root + args_login;
 
     public static String searchUrl =  root + "search?name=";
 
+    public static Retrofit rxGsonRetrofit;
+    public static Retrofit rxRetrofit;
+
+    static {
+        //手动创建一个OkHttpClient并设置超时时间
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.connectTimeout(5, TimeUnit.SECONDS);
+
+        //饿汉式
+        rxGsonRetrofit = new Retrofit.Builder().baseUrl(baseUrl)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) //rxjava
+                .addConverterFactory(GsonConverterFactory.create())  //gson
+                .client(httpClientBuilder.build())
+                .build();
+
+        rxRetrofit= new Retrofit.Builder().baseUrl(baseUrl)
+                .client(httpClientBuilder.build())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) //rxjava
+                .build();
+    }
+
     public static void refreshIp(){
-        cartUrl = root + args1;
-        logInUrl = root + args3;
+        cartUrl = root + args_cart;
+        logInUrl = root + args_login;
         searchUrl =  root + "search?name=";
     }
     /**
@@ -73,7 +107,6 @@ public class InternetUtil {
         {
             EventBus.getDefault().post(new MessageEvent("更新失败"));
             e.printStackTrace();
-
         }
         return flag;
     }
@@ -116,5 +149,25 @@ public class InternetUtil {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void login(DisposableObserver<ResponseBody> disposableObserver,String uuid){
+        LogInService service = rxRetrofit.create(LogInService.class);
+        service.logIn(uuid)
+//                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(disposableObserver);
+    }
+
+    public static void findItemByCode(DisposableObserver<InternetItem> disposableObserver, String code){
+        InternetBarService service = rxGsonRetrofit.create(InternetBarService.class);
+        service.findItemByCode(code)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(disposableObserver);
+    }
+
+    public static void getCart(DisposableObserver<Order> disposableObserver){
+        CartService service = rxGsonRetrofit.create(CartService.class);
+        service.getOrder()
+                .subscribeWith(disposableObserver);
     }
 }

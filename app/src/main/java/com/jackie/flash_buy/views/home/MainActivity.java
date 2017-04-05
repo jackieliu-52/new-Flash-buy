@@ -5,15 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
-import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -33,14 +29,10 @@ import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.adapter.ItemAdapter;
 import com.jackie.flash_buy.bus.InternetEvent;
-import com.jackie.flash_buy.bus.ListEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.bus.PageEvent;
 import com.jackie.flash_buy.bus.PlanBuyEvent;
-import com.jackie.flash_buy.bus.UiEvent;
-import com.jackie.flash_buy.model.Aller_father;
 import com.jackie.flash_buy.model.Allergen;
-import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.InternetItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
@@ -48,20 +40,16 @@ import com.jackie.flash_buy.model.Market;
 import com.jackie.flash_buy.model.Order;
 import com.jackie.flash_buy.model.TwoTuple;
 import com.jackie.flash_buy.model.User;
-import com.jackie.flash_buy.presenters.plan.PlanPresenter;
 import com.jackie.flash_buy.ui.NoScrollViewPager;
 import com.jackie.flash_buy.utils.Constant;
-import com.jackie.flash_buy.utils.InternetUtil;
+import com.jackie.flash_buy.utils.network.InternetUtil;
 import com.jackie.flash_buy.utils.Util;
 import com.jackie.flash_buy.views.TestFragment;
 import com.jackie.flash_buy.views.buy.BuyFragment;
-import com.jackie.flash_buy.views.buy.Fragment_cart;
 import com.jackie.flash_buy.views.buy.LocationService;
 import com.jackie.flash_buy.views.goods.GoodsActivity;
 import com.jackie.flash_buy.views.order.OrderActivity;
-import com.jackie.flash_buy.views.plan.PlanFragment;
 import com.jackie.flash_buy.views.scan.ScanActivity;
-import com.jackie.flash_buy.views.setting.Fragment_aler;
 import com.jackie.flash_buy.views.setting.SettingActivity;
 import com.lzp.floatingactionbuttonplus.FabTagLayout;
 import com.lzp.floatingactionbuttonplus.FloatingActionButtonPlus;
@@ -80,7 +68,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import io.reactivex.observers.DisposableObserver;
 import me.shaohui.bottomdialog.BottomDialog;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends BaseActivity {
     public static int status = 0 ;  //状态，0-未开始购物，1-购物中（需要定位），2-购买结束
@@ -148,8 +139,9 @@ public class MainActivity extends BaseActivity {
                 isLogin = true;
             }
         }
+
         EventBus.getDefault().register(this);
-        setFab();
+        setFab(); //底部tab设置
 
 
         clContent = (CoordinatorLayout) findViewById(R.id.clt);
@@ -399,38 +391,27 @@ public class MainActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void getInfo(InternetEvent internetEvent) {
         switch (internetEvent.type){
-            case Constant.REQUEST_INTERNET_BAR:
-                String httpUrl = "http://apis.baidu.com/3023/barcode/barcode";
-                String httpArg = "barcode=" + internetEvent.message;
-                httpUrl = httpUrl + "?" + httpArg;
-                //保存网页信息
-                String info;
-                try {
-                    URL url = new URL(httpUrl);
-                    HttpURLConnection connection = (HttpURLConnection) url
-                            .openConnection();
-                    connection.setRequestMethod("GET");
-                    // 填入apikey到HTTP header
-                    connection.setRequestProperty("apikey",  "ab7d6eef4f735da9892ee2c6682f5088");
-                    connection.connect();
-                    //网页返回的状态码
-                    int code = connection.getResponseCode();
+            case Constant.REQUEST_INTERNET_BAR: //用条形码搜索
+                try{
+                    DisposableObserver<InternetItem> itemObserver = new DisposableObserver<InternetItem>() {
+                        @Override
+                        public void onNext(InternetItem internetItem) {
+                            GoodsActivity.item = new Item(internetItem);  //获得一个Item
+                            startActivity(new Intent(mContext,GoodsActivity.class));
+                        }
+                        @Override
+                        public void onError(Throwable e) {
 
-                    Log.i("result","状态码 ：" + code);
-                    if(code == 200) {
-                        InputStream is = connection.getInputStream();
-                        info = Util.readStream(is);
-                        //避免Unicode转义
-                        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                        //将json转换为一个InternetItem
-                        InternetItem internetItem = gson.fromJson(info,InternetItem.class);
-                        GoodsActivity.item = new Item(internetItem);  //获得一个Item
-                        startActivity(new Intent(this,GoodsActivity.class));
-                    }
-                    else {
-                        //没有网络不能跳转
-                        EventBus.getDefault().post(new MessageEvent("查询商品失败，请检查网络"));
-                    }
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    };
+                    InternetUtil.findItemByCode(itemObserver,internetEvent.message);
+
+
                 } catch (Exception e) {
                     //没有网络不能跳转
                     EventBus.getDefault().post(new MessageEvent("查询商品失败，请检查网络"));
@@ -453,7 +434,7 @@ public class MainActivity extends BaseActivity {
 //                }
                 break;
             case Constant.CHECKE_OUT:
-                InternetUtil.postStr(" ", InternetUtil.args1);   //发送给服务器
+                InternetUtil.postStr(" ", InternetUtil.args_checkout);   //发送给服务器,简单逻辑暂时不修改
                 break;
             case Constant.POST_Aller:
                 Gson gson = new Gson();
@@ -467,11 +448,27 @@ public class MainActivity extends BaseActivity {
                 }
                 break;
             case Constant.LOG_IN:
-                if(InternetUtil.postStr(" ", InternetUtil.args3 + internetEvent.message +"&userId=9&password=9")){
-                    EventBus.getDefault().post(new MessageEvent("绑定成功！"));
-                } else {
-                    EventBus.getDefault().post(new MessageEvent("信息不能传输！"));
-                }
+                DisposableObserver<ResponseBody> loginObserver = new DisposableObserver<ResponseBody>() {
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        EventBus.getDefault().post(new MessageEvent("信息不能传输到服务器！"));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        EventBus.getDefault().post(new MessageEvent("绑定成功！"));
+                    }
+                };
+                InternetUtil.login(loginObserver,internetEvent.message);
+//                if(InternetUtil.postStr(" ", InternetUtil.args_login + internetEvent.message +"&userId=9&password=9")){
+//                    EventBus.getDefault().post(new MessageEvent("绑定成功！"));
+//                } else {
+//                    EventBus.getDefault().post(new MessageEvent("信息不能传输！"));
+//                }
 
                 break;
             default:
@@ -485,6 +482,7 @@ public class MainActivity extends BaseActivity {
     /**
      * 因为有个Activity用到了WebView，但是根据网上说法，WebView可能没有正常地释放资源
      * 所以这里偷懒选择了这样一种方法来保证程序退出之后没有另外泄露
+     * 但新版本去除了WebView，删除代码
      */
     @Override
     protected void onDestroy(){
@@ -494,7 +492,7 @@ public class MainActivity extends BaseActivity {
 
 
     /**
-     * 测试模式下的初始化
+     * 测试模式下的初始化购物车
      */
     private void testMode(){
         cart = new ArrayList<>();
@@ -533,39 +531,23 @@ public class MainActivity extends BaseActivity {
      */
     private void initCart(String url){
         cart = new ArrayList<>();
-        String json;
-        try {
-            URL url1 = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) url1
-                    .openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            //网页返回的状态码
-            int code = connection.getResponseCode();
-            //Log.i("购物车查询","结果码" + code);
-            if(code == 200) {
-                InputStream is = connection.getInputStream();
-                json = Util.readStream(is);
-                //避免Unicode转义
-                Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                //将json转换为一个Order
-
-                Order order = gson.fromJson(json,Order.class);
-
+        DisposableObserver<Order> cartObserver = new DisposableObserver<Order>() {
+            @Override
+            public void onNext(Order order) {
                 //如果json为空的话，那么会变成null
-                if(order == null){
-                }else {
-
+                if(order == null);
+                else {
                     //将剩下的加入购物车
                     cart.addAll(order.getLineItems());
 
-                     total_price = 0;
+                    total_price = 0;
 
-                    //如果说这个预购商品已经放进去了，那么就移除它
+                    //如果说这个预购商品已经放进去了，那么就从预购清单中移除它
                     for (LineItem lineItem : cart) {
                         Iterator iterator = realPlanBuy.iterator();
                         while (iterator.hasNext()){
                             if(lineItem.getItem().getName().equals(((LineItem)iterator).getItem().getName())){
+                                //这里不能用foreach然后remove，会触发并发修改异常
                                 iterator.remove();
                             }
                         }
@@ -576,20 +558,21 @@ public class MainActivity extends BaseActivity {
                     if (lvAdapter != null) {
                         lvAdapter.notifyDataSetChanged(); //通知更新
                     }
-                 //   EventBus.getDefault().post(new MessageEvent("刷新购物车成功",new Item()));
+
                 }
             }
 
-            else {
-                // EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
+            @Override
+            public void onError(Throwable e) {
+
             }
 
-        }
-        catch (Exception e) {
-            // EventBus.getDefault().post(new MessageEvent("刷新购物车失败，请检查网络"));
-            e.printStackTrace();
-        }
+            @Override
+            public void onComplete() {
 
+            }
+        };
+        InternetUtil.getCart(cartObserver);
     }
 
     //重写back方法，2次连续按退出Actvity

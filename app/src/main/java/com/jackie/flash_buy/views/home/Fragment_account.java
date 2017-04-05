@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -22,7 +21,7 @@ import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.bus.LogEvent;
 import com.jackie.flash_buy.model.User;
-import com.jackie.flash_buy.utils.InternetUtil;
+import com.jackie.flash_buy.utils.network.InternetUtil;
 import com.jackie.flash_buy.views.setting.SettingActivity;
 
 import org.greenrobot.eventbus.EventBus;
@@ -151,8 +150,8 @@ public class Fragment_account extends BaseFragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 String[] ips = getResources().getStringArray(R.array.ip);
-                InternetUtil.ipAddress = ips[pos];  //设置ip地址
-                InternetUtil.root = "http://"+ InternetUtil.ipAddress +":443/Flash-Buy/";
+                InternetUtil.baseUrl = ips[pos];  //设置ip地址
+                InternetUtil.root = "http://"+ InternetUtil.baseUrl +":443/Flash-Buy/";
                 InternetUtil.refreshIp(); //刷新一下
             }
 

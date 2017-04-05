@@ -1,21 +1,15 @@
 package com.jackie.flash_buy.views.buy;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,16 +22,11 @@ import com.dexafree.materialList.view.MaterialListAdapter;
 import com.dexafree.materialList.view.MaterialListView;
 import com.jackie.flash_buy.BaseFragment;
 import com.jackie.flash_buy.R;
-import com.jackie.flash_buy.bus.InternetEvent;
-import com.jackie.flash_buy.bus.MessageEvent;
 import com.jackie.flash_buy.bus.UiEvent;
 import com.jackie.flash_buy.model.BulkItem;
 import com.jackie.flash_buy.model.Item;
 import com.jackie.flash_buy.model.LineItem;
-import com.jackie.flash_buy.model.Order;
 import com.jackie.flash_buy.ui.Card.GoodsCardProvider;
-import com.jackie.flash_buy.utils.Constant;
-import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.views.home.MainActivity;
 import com.litesuits.common.utils.VibrateUtil;
 import com.squareup.picasso.RequestCreator;
@@ -48,8 +37,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**

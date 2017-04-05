@@ -15,8 +15,7 @@ import android.widget.ImageView;
 
 import com.jackie.flash_buy.R;
 import com.jackie.flash_buy.bus.MessageEvent;
-import com.jackie.flash_buy.utils.InternetUtil;
-import com.jackie.flash_buy.views.home.MainActivity;
+import com.jackie.flash_buy.utils.network.InternetUtil;
 import com.skyfishjy.library.RippleBackground;
 
 import org.greenrobot.eventbus.EventBus;
@@ -84,7 +83,7 @@ public class ConnectActivity extends AppCompatActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
-            return InternetUtil.postStr(" ", InternetUtil.args3 + text +"&userId=9&password=9");   //发送给服务器
+            return InternetUtil.postStr(" ", InternetUtil.args_login + text +"&userId=9&password=9");   //发送给服务器
         }
 
         @Override

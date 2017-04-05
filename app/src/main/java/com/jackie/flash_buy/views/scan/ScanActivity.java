@@ -1,7 +1,5 @@
 package com.jackie.flash_buy.views.scan;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -13,7 +11,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +21,6 @@ import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.ui.RevealBackgroundView;
 import com.jackie.flash_buy.ui.ScanImageView;
 import com.jackie.flash_buy.utils.Constant;
-import com.jackie.flash_buy.utils.InternetUtil;
 import com.jackie.flash_buy.utils.zxing.ScanListener;
 import com.jackie.flash_buy.utils.zxing.ScanManager;
 import com.jackie.flash_buy.utils.zxing.decode.DecodeThread;

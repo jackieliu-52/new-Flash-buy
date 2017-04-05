@@ -32,7 +32,6 @@ import com.jackie.flash_buy.ui.SmoothCheckBox;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerAdapter;
 import com.jackie.flash_buy.ui.commonRecyclerView.CommonRecyclerViewHolder;
 import com.jackie.flash_buy.utils.Constant;
-import com.jackie.flash_buy.utils.InternetUtil;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 

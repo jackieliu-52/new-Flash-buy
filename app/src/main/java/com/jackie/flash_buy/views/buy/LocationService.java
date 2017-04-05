@@ -1,18 +1,12 @@
 package com.jackie.flash_buy.views.buy;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 import com.jackie.flash_buy.bus.InternetEvent;
 import com.jackie.flash_buy.bus.MessageEvent;
@@ -24,7 +18,7 @@ import com.jackie.flash_buy.model.Round;
 import com.jackie.flash_buy.model.iBeaconView;
 import com.jackie.flash_buy.utils.BluetoothManager;
 import com.jackie.flash_buy.utils.Constant;
-import com.jackie.flash_buy.utils.InternetUtil;
+import com.jackie.flash_buy.utils.network.InternetUtil;
 import com.jackie.flash_buy.utils.location.LocationHelper;
 import com.jackie.flash_buy.views.home.MainActivity;
 import com.skybeacon.sdk.RangingBeaconsListener;
@@ -216,7 +210,7 @@ public class LocationService extends IntentService   {
 
             //如果有定位信息，就发送给服务器
             if (Fragment_map.location != null) {
-                InternetUtil.postStr("", InternetUtil.args4 + "=9&x=" + Fragment_map.location.x + "&y=" + Fragment_map.location.y);
+                InternetUtil.postStr("", InternetUtil.args_location + "=9&x=" + Fragment_map.location.x + "&y=" + Fragment_map.location.y);
 
                 //同时需要发送给mapFragment,进行定位操作
                 EventBus.getDefault().post(new PlanBuyEvent("location",0,0));
@@ -236,7 +230,7 @@ public class LocationService extends IntentService   {
 
         EventBus.getDefault().post(new InternetEvent(InternetUtil.cartUrl, Constant.REQUEST_Cart)); //获取购物车信息
         Log.i("LocationService","发送刷新指令");
-      //  Log.i("ipAddress",InternetUtil.ipAddress );
+
         EventBus.getDefault().post(new UiEvent("cart"));  //刷新购物车的UI
     }
 
