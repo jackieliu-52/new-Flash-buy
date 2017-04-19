@@ -52,14 +52,14 @@ public class InternetUtil {
 
         //饿汉式
         rxGsonRetrofit = new Retrofit.Builder().baseUrl(baseUrl)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) //rxjava
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync()) //rxjava
                 .addConverterFactory(GsonConverterFactory.create())  //gson
                 .client(httpClientBuilder.build())
                 .build();
 
         rxRetrofit= new Retrofit.Builder().baseUrl(baseUrl)
                 .client(httpClientBuilder.build())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) //rxjava
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync()) //rxjava
                 .build();
     }
 
